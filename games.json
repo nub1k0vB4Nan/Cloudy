@@ -1,0 +1,9 @@
+[
+  {
+    "id": "efm-demo1",
+    "title": "Escape From Matveo Demo",
+    "description": "School never sleeps, and neither will you.",
+    "cover": "games/efm-demo1/cover.png",
+    "path": "games/efm-demo1/index.html"
+  }
+]
