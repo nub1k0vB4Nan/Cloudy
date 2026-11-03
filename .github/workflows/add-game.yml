@@ -15,8 +15,8 @@ on:
         description: 'Game Description'
         required: true
         type: string
-      cover_url:
-        description: 'Direct URL to cover image (PNG or JPG)'
+      cover_path_or_url:
+        description: 'Local file (e.g. cover.png) OR direct URL'
         required: true
         type: string
       build_zip_url:
@@ -39,11 +39,20 @@ jobs:
       - name: Prepare game directory and assets
         run: |
           mkdir -p games/${{ inputs.game_id }}
-          curl -L "${{ inputs.cover_url }}" -o games/${{ inputs.game_id }}/cover.png
+          
+          COVER_INPUT="${{ inputs.cover_path_or_url }}"
+          if [ -f "$COVER_INPUT" ]; then
+            cp "$COVER_INPUT" "games/${{ inputs.game_id }}/cover.png"
+          else
+            RAW_URL=$(echo "$COVER_INPUT" | sed 's|github.com/\([^/]*\)/\([^/]*\)/blob/|raw.githubusercontent.com/\1/\2/|')
+            curl -L "$RAW_URL" -o "games/${{ inputs.game_id }}/cover.png"
+          fi
+
           curl -L "${{ inputs.build_zip_url }}" -o temp_build.zip
-          unzip -o temp_build.zip -d games/${{ inputs.game_id }}/
+          unzip -o temp_build.zip -d "games/${{ inputs.game_id }}/"
           rm temp_build.zip
-          ls -lh games/${{ inputs.game_id }}/
+          
+          file "games/${{ inputs.game_id }}/cover.png"
 
       - name: Update games list
         run: |
