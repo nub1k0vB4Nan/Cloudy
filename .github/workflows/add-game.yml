@@ -1,0 +1,75 @@
+name: Add Game to Cloudy
+
+on:
+  workflow_dispatch:
+    inputs:
+      game_id:
+        description: 'Game Folder ID (lowercase, e.g. space-runner)'
+        required: true
+        type: string
+      game_title:
+        description: 'Game Title'
+        required: true
+        type: string
+      game_description:
+        description: 'Game Description'
+        required: true
+        type: string
+      cover_url:
+        description: 'Direct URL to cover image (PNG or JPG)'
+        required: true
+        type: string
+      build_zip_url:
+        description: 'Direct URL to game build ZIP archive'
+        required: true
+        type: string
+
+jobs:
+  deploy-game:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Prepare game directory and assets
+        run: |
+          mkdir -p games/${{ inputs.game_id }}
+          curl -L "${{ inputs.cover_url }}" -o games/${{ inputs.game_id }}/cover.png
+          curl -L "${{ inputs.build_zip_url }}" -o temp_build.zip
+          unzip -o temp_build.zip -d games/${{ inputs.game_id }}/
+          rm temp_build.zip
+
+      - name: Update games list
+        run: |
+          python3 - << 'EOF'
+          import json, os
+          path = 'games.json'
+          games = []
+          if os.path.exists(path):
+              try:
+                  with open(path, 'r', encoding='utf-8') as f:
+                      games = json.load(f)
+              except Exception:
+                  games = []
+          new_game = {
+              "id": "${{ inputs.game_id }}",
+              "title": "${{ inputs.game_title }}",
+              "description": "${{ inputs.game_description }}",
+              "cover": "games/${{ inputs.game_id }}/cover.png",
+              "path": "games/${{ inputs.game_id }}/index.html"
+          }
+          games = [g for g in games if g.get("id") != new_game["id"]]
+          games.append(new_game)
+          with open(path, 'w', encoding='utf-8') as f:
+              json.dump(games, f, indent=2, ensure_ascii=False)
+          EOF
+
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add games/${{ inputs.game_id }}/ games.json
+          git commit -m "Add/Update game: ${{ inputs.game_title }}"
+          git push
