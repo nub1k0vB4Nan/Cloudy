@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cloudy</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: #020817;
+      color: #f8fafc;
+      overflow: hidden;
+      margin: 0;
+      padding: 0;
+    }
+
+    .abstract-bg {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background: linear-gradient(135deg, #020617 0%, #071936 45%, #030b1c 100%);
+      overflow: hidden;
+    }
+
+    .abstract-svg {
+      position: absolute;
+      width: 130%;
+      height: 130%;
+      top: -15%;
+      left: -15%;
+      filter: blur(65px);
+      opacity: 0.85;
+      animation: gentleWave 28s ease-in-out infinite alternate;
+    }
+
+    @keyframes gentleWave {
+      0% {
+        transform: scale(1) translate(0%, 0%) rotate(0deg);
+      }
+      100% {
+        transform: scale(1.04) translate(-1.5%, 1.5%) rotate(1deg);
+      }
+    }
+
+    .custom-scrollbar {
+      scrollbar-width: thin;
+      scrollbar-color: rgba(56, 189, 248, 0.45) rgba(2, 6, 23, 0.35);
+    }
+
+    .custom-scrollbar::-webkit-scrollbar {
+      height: 8px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: rgba(2, 6, 23, 0.45);
+      border-radius: 9999px;
+      margin-left: 24px;
+      margin-right: 24px;
+      border: 1px solid rgba(56, 189, 248, 0.08);
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: linear-gradient(90deg, #0284c7, #38bdf8);
+      border-radius: 9999px;
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.45);
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(90deg, #0ea5e9, #7dd3fc);
+    }
+
+    .game-tile-container {
+      width: 320px;
+      aspect-ratio: 16 / 9;
+      flex-shrink: 0;
+      position: relative;
+      cursor: pointer;
+      border-radius: 20px;
+      overflow: visible;
+    }
+
+    .switch-focus-border {
+      position: absolute;
+      inset: 0;
+      border-radius: 20px;
+      border: 5px solid transparent;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s cubic-bezier(0.2, 0.8, 0.25, 1);
+      box-sizing: border-box;
+      z-index: 2;
+    }
+
+    .game-tile {
+      width: 100%;
+      height: 100%;
+      border-radius: 20px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 12px 28px -8px rgba(2, 6, 23, 0.7);
+      transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.25, 1),
+                  border-radius 0.2s cubic-bezier(0.2, 0.8, 0.25, 1);
+      transform-origin: center center;
+    }
+
+    .game-tile-container:hover .game-tile {
+      transform: scale(0.96875);
+      border-radius: 16px;
+    }
+
+    .game-tile-container:hover .switch-focus-border {
+      opacity: 1;
+      animation: switchColorCycle 2s ease-in-out infinite alternate;
+    }
+
+    @keyframes switchColorCycle {
+      0% {
+        border-color: #2563eb;
+        box-shadow: 0 0 20px rgba(37, 99, 235, 0.8),
+                    inset 0 0 10px rgba(37, 99, 235, 0.45);
+      }
+      50% {
+        border-color: #0284c7;
+        box-shadow: 0 0 24px rgba(2, 132, 199, 0.9),
+                    inset 0 0 12px rgba(2, 132, 199, 0.55);
+      }
+      100% {
+        border-color: #38bdf8;
+        box-shadow: 0 0 28px rgba(56, 189, 248, 1),
+                    inset 0 0 14px rgba(56, 189, 248, 0.7);
+      }
+    }
+
+    .game-tile-container:active .game-tile {
+      transform: scale(0.94);
+      transition-duration: 0.08s;
+    }
+
+    .game-tile-container:active .switch-focus-border {
+      transform: scale(0.975);
+      transition-duration: 0.08s;
+    }
+
+    .info-panel {
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.26s cubic-bezier(0.25, 1, 0.5, 1),
+                  transform 0.26s cubic-bezier(0.25, 1, 0.5, 1);
+      pointer-events: none;
+    }
+
+    .info-panel.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .info-panel.switching {
+      opacity: 0;
+      transform: translateY(5px);
+      transition: opacity 0.13s ease-out, transform 0.13s ease-out;
+    }
+  </style>
+</head>
+<body class="h-screen w-screen flex flex-col justify-between">
+
+  <div class="abstract-bg">
+    <svg class="abstract-svg" viewBox="0 0 1440 900" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <linearGradient id="wave1" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#0284c7" stop-opacity="0.75" />
+          <stop offset="50%" stop-color="#2563eb" stop-opacity="0.55" />
+          <stop offset="100%" stop-color="#0f172a" stop-opacity="0.1" />
+        </linearGradient>
+        <linearGradient id="wave2" x1="100%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#06b6d4" stop-opacity="0.65" />
+          <stop offset="55%" stop-color="#1d4ed8" stop-opacity="0.5" />
+          <stop offset="100%" stop-color="#0369a1" stop-opacity="0.2" />
+        </linearGradient>
+        <linearGradient id="wave3" x1="20%" y1="100%" x2="80%" y2="0%">
+          <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.5" />
+          <stop offset="60%" stop-color="#0284c7" stop-opacity="0.4" />
+          <stop offset="100%" stop-color="#1e3a8a" stop-opacity="0.1" />
+        </linearGradient>
+      </defs>
+      <path d="M-150 220 C 320 -80, 680 480, 1180 180 C 1420 40, 1580 320, 1650 450 L 1650 980 L -150 980 Z" fill="url(#wave1)" />
+      <path d="M-100 580 C 260 320, 740 780, 1240 420 C 1480 240, 1550 580, 1650 680 L 1650 980 L -100 980 Z" fill="url(#wave2)" />
+      <ellipse cx="320" cy="240" rx="420" ry="260" fill="url(#wave3)" />
+      <ellipse cx="1150" cy="640" rx="480" ry="290" fill="url(#wave2)" />
+      <path d="M180 -60 C 560 280, 920 -120, 1380 240 C 1540 360, 1420 620, 1120 520 C 720 380, 380 680, -60 420 Z" fill="url(#wave3)" />
+    </svg>
+  </div>
+
+  <header class="relative z-10 px-10 md:px-16 pt-9">
+    <div class="inline-flex items-center">
+      <img
+        src="logo.png"
+        alt="Cloudy"
+        class="h-10 w-auto object-contain"
+        onload="this.style.display='block'; document.getElementById('fallback-logo').style.display='none';"
+        onerror="this.style.display='none'; document.getElementById('fallback-logo').style.display='block';"
+      >
+      <span id="fallback-logo" style="display: none;" class="text-2xl font-bold tracking-tight text-white">
+        Cloudy
+      </span>
+    </div>
+  </header>
+
+  <main class="relative z-10 flex-1 flex flex-col justify-center px-10 md:px-16">
+    <div id="empty-state" class="w-full flex flex-col items-center justify-center text-center py-16 hidden">
+      <div class="w-16 h-16 rounded-2xl bg-sky-500/10 border border-sky-400/20 flex items-center justify-center mb-6 shadow-[0_0_25px_rgba(56,189,248,0.15)]">
+        <svg class="w-8 h-8 text-sky-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z" />
+        </svg>
+      </div>
+      <h2 class="text-2xl md:text-3xl font-bold text-white tracking-tight">No Games Available</h2>
+      <p class="text-sm md:text-base text-sky-200/60 mt-3 max-w-md leading-relaxed">
+        Check your internet connection, verify service status, or add games to the repository.
+      </p>
+      <button id="refresh-btn" class="mt-6 px-5 py-2.5 rounded-xl bg-sky-500/10 hover:bg-sky-500/20 active:scale-95 border border-sky-400/30 text-sky-300 hover:text-sky-200 text-sm font-semibold tracking-wide transition-all inline-flex items-center gap-2">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+        </svg>
+        Retry
+      </button>
+    </div>
+
+    <div id="games-section" class="w-full max-w-7xl hidden">
+      <div id="tiles-row" class="flex items-center gap-6 py-6 px-3 overflow-x-auto custom-scrollbar scroll-smooth"></div>
+
+      <div id="info-panel" class="info-panel mt-7 min-h-[96px] max-w-2xl">
+        <h1 id="game-title" class="text-3xl md:text-4xl font-bold tracking-tight text-white"></h1>
+        <p id="game-desc" class="text-sm md:text-base text-sky-200/75 mt-2 leading-relaxed"></p>
+      </div>
+    </div>
+  </main>
+
+  <div class="h-12"></div>
+
+  <script>
+    let games = [];
+
+    const emptyState = document.getElementById('empty-state');
+    const gamesSection = document.getElementById('games-section');
+    const tilesRow = document.getElementById('tiles-row');
+    const infoPanel = document.getElementById('info-panel');
+    const titleEl = document.getElementById('game-title');
+    const descEl = document.getElementById('game-desc');
+    const refreshBtn = document.getElementById('refresh-btn');
+
+    let switchTimeout = null;
+    let hideTimeout = null;
+    let isPanelVisible = false;
+
+    async function loadCatalog() {
+      try {
+        const response = await fetch('games.json', { cache: 'no-cache' });
+        if (response.ok) {
+          const data = await response.json();
+          games = Array.isArray(data) ? data : [];
+        } else {
+          games = [];
+        }
+      } catch (err) {
+        games = [];
+      }
+      renderGames();
+    }
+
+    function renderGames() {
+      if (!games || games.length === 0) {
+        emptyState.classList.remove('hidden');
+        gamesSection.classList.add('hidden');
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+      gamesSection.classList.remove('hidden');
+      tilesRow.innerHTML = '';
+
+      games.forEach((game) => {
+        const container = document.createElement('div');
+        container.className = 'game-tile-container';
+        container.setAttribute('data-title', game.title || 'Untitled');
+        container.setAttribute('data-desc', game.desc || game.description || '');
+
+        const focusBorder = document.createElement('div');
+        focusBorder.className = 'switch-focus-border';
+
+        const tile = document.createElement('div');
+        tile.className = 'game-tile';
+
+        if (game.cover) {
+          tile.style.backgroundImage = `url(${game.cover})`;
+          tile.style.backgroundSize = 'cover';
+          tile.style.backgroundPosition = 'center';
+        } else {
+          tile.style.background = game.bg || 'linear-gradient(145deg, #0ea5e9 0%, #1e40af 55%, #09152e 100%)';
+        }
+
+        container.appendChild(focusBorder);
+        container.appendChild(tile);
+        tilesRow.appendChild(container);
+
+        container.addEventListener('mouseenter', () => {
+          clearTimeout(hideTimeout);
+          clearTimeout(switchTimeout);
+
+          const newTitle = container.getAttribute('data-title');
+          const newDesc = container.getAttribute('data-desc');
+
+          if (!isPanelVisible) {
+            titleEl.textContent = newTitle;
+            descEl.textContent = newDesc;
+            infoPanel.classList.remove('switching');
+            infoPanel.classList.add('visible');
+            isPanelVisible = true;
+          } else if (titleEl.textContent !== newTitle) {
+            infoPanel.classList.add('switching');
+            switchTimeout = setTimeout(() => {
+              titleEl.textContent = newTitle;
+              descEl.textContent = newDesc;
+              infoPanel.classList.remove('switching');
+            }, 120);
+          }
+        });
+
+        container.addEventListener('mouseleave', () => {
+          clearTimeout(switchTimeout);
+          hideTimeout = setTimeout(() => {
+            infoPanel.classList.remove('visible', 'switching');
+            isPanelVisible = false;
+          }, 90);
+        });
+      });
+    }
+
+    tilesRow.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      tilesRow.scrollLeft += e.deltaY * 1.5;
+    }, { passive: false });
+
+    refreshBtn.addEventListener('click', () => {
+      loadCatalog();
+    });
+
+    loadCatalog();
+  </script>
+</body>
+</html>
