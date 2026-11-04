@@ -1,1 +1,9 @@
-[]
+[
+  {
+    "id": "efm-demo",
+    "title": "Escape From Matveo Demo",
+    "description": "You woke up at school at midnight. The doors are locked, and it feels like something is watching you.",
+    "cover": "games/efm-demo/cover.png",
+    "path": "games/efm-demo/index.html"
+  }
+]
