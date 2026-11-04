@@ -1,0 +1,108 @@
+name: Edit Game in Cloudy
+
+on:
+  workflow_dispatch:
+    inputs:
+      game_id:
+        description: 'Existing Game ID (folder name, e.g. efm-demo)'
+        required: true
+        type: string
+      game_title:
+        description: 'New Title (leave empty to keep current)'
+        required: false
+        type: string
+      game_description:
+        description: 'New Description (leave empty to keep current)'
+        required: false
+        type: string
+      cover_path_or_url:
+        description: 'New Cover (file name in repo or URL, leave empty to keep)'
+        required: false
+        type: string
+      build_zip_url:
+        description: 'New Build ZIP URL (leave empty to keep current files)'
+        required: false
+        type: string
+
+jobs:
+  update-game:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 1
+
+      - name: Update assets and build
+        run: |
+          GAME_DIR="games/${{ inputs.game_id }}"
+          if [ ! -d "$GAME_DIR" ]; then
+            echo "Error: Directory $GAME_DIR does not exist!"
+            exit 1
+          fi
+
+          COVER_INPUT="${{ inputs.cover_path_or_url }}"
+          if [ -n "$COVER_INPUT" ]; then
+            if [ -f "$COVER_INPUT" ]; then
+              cp "$COVER_INPUT" "$GAME_DIR/cover.png"
+            else
+              RAW_URL=$(echo "$COVER_INPUT" | sed 's|github.com/\([^/]*\)/\([^/]*\)/blob/|raw.githubusercontent.com/\1/\2/|')
+              curl -L "$RAW_URL" -o "$GAME_DIR/cover.png"
+            fi
+          fi
+
+          BUILD_URL="${{ inputs.build_zip_url }}"
+          if [ -n "$BUILD_URL" ]; then
+            curl -L "$BUILD_URL" -o temp_update.zip
+            unzip -o temp_update.zip -d "$GAME_DIR/"
+            rm temp_update.zip
+          fi
+
+      - name: Update games.json metadata
+        run: |
+          python3 - << 'EOF'
+          import json, os
+
+          path = 'games.json'
+          if not os.path.exists(path):
+              print("games.json not found")
+              exit(1)
+
+          with open(path, 'r', encoding='utf-8') as f:
+              games = json.load(f)
+
+          target_id = "${{ inputs.game_id }}"
+          new_title = "${{ inputs.game_title }}".strip()
+          new_desc = "${{ inputs.game_description }}".strip()
+
+          game_found = False
+          for g in games:
+              if g.get("id") == target_id:
+                  game_found = True
+                  if new_title:
+                      g["title"] = new_title
+                  if new_desc:
+                      g["description"] = new_desc
+                  break
+
+          if not game_found:
+              print(f"Game with ID {target_id} not found in games.json")
+              exit(1)
+
+          with open(path, 'w', encoding='utf-8') as f:
+              json.dump(games, f, indent=2, ensure_ascii=False)
+          EOF
+
+      - name: Commit and push changes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config http.postBuffer 524288000
+          git add games/${{ inputs.game_id }}/ games.json
+          git commit -m "Update game: ${{ inputs.game_id }}" || echo "No changes to commit"
+          git push -v origin main
