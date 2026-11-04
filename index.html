@@ -4,8 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cloudy</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     * {
+      font-family: 'Plus Jakarta Sans', sans-serif;
       box-sizing: border-box;
       margin: 0;
       padding: 0;
@@ -14,25 +19,23 @@
     }
 
     body {
-      background-color: #030712;
+      background-color: #020617;
       color: #f8fafc;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       overflow: hidden;
       width: 100vw;
       height: 100vh;
     }
 
-    .ambient-canvas {
+    #bg-canvas {
       position: fixed;
-      top: 0;
-      left: 0;
+      inset: 0;
       width: 100vw;
       height: 100vh;
       z-index: 0;
       pointer-events: none;
     }
 
-    .app-viewport {
+    .app-scaffold {
       position: relative;
       z-index: 10;
       width: 100%;
@@ -40,130 +43,19 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      padding: 48px 56px;
-    }
-
-    .brand-header {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .brand-logo {
-      height: 38px;
-      max-width: 180px;
-      object-fit: contain;
-    }
-
-    .brand-fallback {
-      font-size: 32px;
-      font-weight: 800;
-      letter-spacing: -0.5px;
-      color: #ffffff;
-      text-shadow: 0 0 24px rgba(56, 189, 248, 0.4);
-    }
-
-    .shelf-container {
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
-      width: 100%;
-      margin-top: auto;
-      margin-bottom: 24px;
-    }
-
-    .shelf-scroll-area {
-      display: flex;
-      gap: 28px;
-      overflow-x: auto;
-      overflow-y: hidden;
-      padding: 18px 4px;
-      scroll-behavior: smooth;
-      scrollbar-width: none;
-    }
-
-    .shelf-scroll-area::-webkit-scrollbar {
-      display: none;
-    }
-
-    .game-tile {
-      position: relative;
-      flex: 0 0 340px;
-      aspect-ratio: 16 / 9;
-      border-radius: 20px;
-      background: #090e1a;
-      cursor: pointer;
-      outline: none;
-      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    .game-tile-inner {
-      width: 100%;
-      height: 100%;
-      border-radius: inherit;
-      overflow: hidden;
-      position: relative;
-      background: radial-gradient(circle at center, #1e293b, #090d16);
-      transform-origin: center;
-      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    .game-cover-art {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-
-    .game-tile-border {
-      position: absolute;
-      inset: 0;
-      border-radius: inherit;
-      pointer-events: none;
-      opacity: 0;
-      border: 5px solid #2563eb;
-      box-shadow: inset 0 0 16px rgba(56, 189, 248, 0.5), 0 0 24px rgba(37, 99, 235, 0.6);
-      transition: opacity 0.3s ease;
-    }
-
-    .game-tile:hover .game-tile-inner,
-    .game-tile:focus-visible .game-tile-inner {
-      transform: scale(0.97);
-    }
-
-    .game-tile:hover .game-tile-border,
-    .game-tile:focus-visible .game-tile-border {
-      opacity: 1;
-      animation: switchBorderShift 2.4s ease-in-out infinite alternate;
-    }
-
-    .game-tile:active .game-tile-inner {
-      transform: scale(0.94);
-    }
-
-    @keyframes switchBorderShift {
-      0% {
-        border-color: #2563eb;
-        box-shadow: inset 0 0 16px rgba(37, 99, 235, 0.6), 0 0 20px rgba(37, 99, 235, 0.5);
-      }
-      50% {
-        border-color: #0284c7;
-        box-shadow: inset 0 0 22px rgba(2, 132, 199, 0.8), 0 0 32px rgba(2, 132, 199, 0.7);
-      }
-      100% {
-        border-color: #38bdf8;
-        box-shadow: inset 0 0 18px rgba(56, 189, 248, 0.9), 0 0 28px rgba(56, 189, 248, 0.8);
-      }
+      padding: 40px 56px 48px;
     }
 
     .custom-scrollbar-track {
-      width: calc(100% - 48px);
-      margin: 0 auto;
+      width: 100%;
+      max-width: 900px;
       height: 6px;
       background: rgba(255, 255, 255, 0.08);
       border-radius: 999px;
       position: relative;
+      margin-top: 14px;
       overflow: hidden;
+      border: 1px solid rgba(56, 189, 248, 0.1);
     }
 
     .custom-scrollbar-thumb {
@@ -171,222 +63,350 @@
       top: 0;
       left: 0;
       height: 100%;
-      width: 20%;
-      background: linear-gradient(90deg, #2563eb, #38bdf8);
+      width: 25%;
+      background: linear-gradient(90deg, #0284c7, #38bdf8);
       border-radius: 999px;
       box-shadow: 0 0 12px rgba(56, 189, 248, 0.7);
-      transition: left 0.1s ease-out, width 0.1s ease-out;
+      transition: left 0.08s ease-out, width 0.12s ease-out;
     }
 
-    .details-pane {
-      min-height: 120px;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
+    .game-tile-container {
+      flex: 0 0 320px;
+      aspect-ratio: 16 / 9;
+      position: relative;
+      cursor: pointer;
+      border-radius: 20px;
+      outline: none;
+    }
+
+    .switch-focus-border {
+      position: absolute;
+      inset: 0;
+      border-radius: 20px;
+      border: 5px solid transparent;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.22s cubic-bezier(0.2, 0.8, 0.25, 1);
+      box-sizing: border-box;
+      z-index: 2;
+    }
+
+    .game-tile {
+      width: 100%;
+      height: 100%;
+      border-radius: 20px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 14px 30px -10px rgba(0, 0, 0, 0.85);
+      background-size: cover;
+      background-position: center;
+      transition: transform 0.24s cubic-bezier(0.2, 0.8, 0.25, 1),
+                  border-radius 0.24s cubic-bezier(0.2, 0.8, 0.25, 1);
+      transform-origin: center center;
+    }
+
+    .game-tile-container:hover .game-tile,
+    .game-tile-container:focus-visible .game-tile {
+      transform: scale(0.965);
+      border-radius: 16px;
+    }
+
+    .game-tile-container:hover .switch-focus-border,
+    .game-tile-container:focus-visible .switch-focus-border {
+      opacity: 1;
+      animation: switchColorCycle 2s ease-in-out infinite alternate;
+    }
+
+    @keyframes switchColorCycle {
+      0% {
+        border-color: #2563eb;
+        box-shadow: 0 0 20px rgba(37, 99, 235, 0.8), inset 0 0 10px rgba(37, 99, 235, 0.45);
+      }
+      50% {
+        border-color: #0284c7;
+        box-shadow: 0 0 24px rgba(2, 132, 199, 0.9), inset 0 0 12px rgba(2, 132, 199, 0.55);
+      }
+      100% {
+        border-color: #38bdf8;
+        box-shadow: 0 0 28px rgba(56, 189, 248, 1), inset 0 0 14px rgba(56, 189, 248, 0.7);
+      }
+    }
+
+    .game-tile-container:active .game-tile {
+      transform: scale(0.935);
+      transition-duration: 0.08s;
+    }
+
+    .info-panel {
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.25s cubic-bezier(0.25, 1, 0.5, 1),
+                  transform 0.25s cubic-bezier(0.25, 1, 0.5, 1);
       pointer-events: none;
     }
 
-    .details-title {
-      font-size: 38px;
-      font-weight: 800;
-      letter-spacing: -0.5px;
-      color: #ffffff;
-      opacity: 0;
-      transform: translateY(12px);
-      transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    .details-description {
-      margin-top: 6px;
-      font-size: 16px;
-      line-height: 1.5;
-      color: rgba(255, 255, 255, 0.7);
-      max-width: 640px;
-      opacity: 0;
-      transform: translateY(12px);
-      transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-      transition-delay: 0.04s;
-    }
-
-    .details-title.active,
-    .details-description.active {
+    .info-panel.visible {
       opacity: 1;
       transform: translateY(0);
     }
 
-    .empty-shelf {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      width: 100%;
-      padding: 64px 0;
+    .info-panel.switching {
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity 0.12s ease-out, transform 0.12s ease-out;
     }
 
-    .empty-shelf-title {
-      font-size: 26px;
-      font-weight: 700;
-      color: #ffffff;
-      margin-bottom: 8px;
-    }
-
-    .empty-shelf-subtitle {
-      font-size: 15px;
-      color: rgba(255, 255, 255, 0.5);
-      max-width: 440px;
-      line-height: 1.6;
-      margin-bottom: 24px;
-    }
-
-    .retry-button {
-      padding: 12px 32px;
-      border-radius: 999px;
-      border: 1px solid rgba(56, 189, 248, 0.3);
-      background: rgba(14, 165, 233, 0.12);
-      color: #38bdf8;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      outline: none;
-      backdrop-filter: blur(8px);
-      transition: all 0.25s ease;
-    }
-
-    .retry-button:hover {
-      background: rgba(14, 165, 233, 0.28);
-      border-color: #38bdf8;
-      box-shadow: 0 0 24px rgba(56, 189, 248, 0.4);
-      transform: scale(1.04);
-    }
-
-    .game-runtime-overlay {
+    .player-overlay {
       position: fixed;
       inset: 0;
-      z-index: 100;
       background: #000000;
+      z-index: 100;
       display: flex;
       flex-direction: column;
       opacity: 0;
       pointer-events: none;
-      transform: scale(0.96);
-      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+      transform: scale(0.97);
+      transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+                  transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
     }
 
-    .game-runtime-overlay.running {
+    .player-overlay.active {
       opacity: 1;
-      pointer-events: all;
+      pointer-events: auto;
       transform: scale(1);
     }
 
-    .game-frame {
-      width: 100%;
-      height: 100%;
-      border: none;
-      background: #000000;
+    .loading-curtain {
+      position: absolute;
+      inset: 0;
+      z-index: 105;
+      background: radial-gradient(circle at center, #091a3e 0%, #020617 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+      pointer-events: none;
     }
 
-    .hud-hover-zone {
+    .loading-curtain.hidden-curtain {
+      opacity: 0;
+    }
+
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border: 3px solid rgba(56, 189, 248, 0.15);
+      border-top-color: #38bdf8;
+      border-radius: 50%;
+      animation: spin 0.9s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .hud-trigger-zone {
       position: absolute;
       top: 0;
       right: 0;
-      width: 240px;
-      height: 140px;
+      width: 260px;
+      height: 150px;
       z-index: 120;
-      display: flex;
-      justify-content: flex-end;
-      align-items: flex-start;
-      padding: 24px;
     }
 
-    .hud-controls-dock {
+    .hud-controls {
+      position: absolute;
+      top: 24px;
+      right: 28px;
+      z-index: 130;
       display: flex;
+      align-items: center;
       gap: 12px;
       opacity: 0;
       transform: translateY(-8px);
       pointer-events: none;
-      transition: opacity 0.3s ease, transform 0.3s ease;
+      transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+                  transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    .hud-hover-zone:hover .hud-controls-dock {
+    .hud-trigger-zone:hover ~ .hud-controls,
+    .hud-controls:hover {
       opacity: 1;
       transform: translateY(0);
-      pointer-events: all;
+      pointer-events: auto;
     }
 
     .hud-btn {
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      background: rgba(15, 23, 42, 0.7);
+      background: rgba(15, 23, 42, 0.85);
       backdrop-filter: blur(16px);
-      color: #ffffff;
-      cursor: pointer;
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      color: #f1f5f9;
+      border-radius: 9999px;
+      padding: 9px 18px;
       display: flex;
       align-items: center;
-      justify-content: center;
-      outline: none;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
       transition: all 0.2s ease;
+      outline: none;
     }
 
     .hud-btn:hover {
-      background: rgba(37, 99, 235, 0.8);
-      border-color: #38bdf8;
-      box-shadow: 0 0 16px rgba(56, 189, 248, 0.6);
-      transform: scale(1.08);
+      background: rgba(30, 41, 59, 0.95);
+      border-color: rgba(56, 189, 248, 0.75);
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.4);
+      transform: translateY(-1px);
     }
 
-    .hud-btn svg {
-      width: 20px;
-      height: 20px;
-      fill: currentColor;
+    .hud-btn:active {
+      transform: scale(0.96);
+    }
+
+    .hide-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .hide-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
     }
   </style>
 </head>
 <body>
 
-  <canvas id="ambient-waves" class="ambient-canvas"></canvas>
+  <canvas id="bg-canvas"></canvas>
 
-  <div class="app-viewport">
-    <header class="brand-header">
-      <img src="logo.png" alt="Cloudy" class="brand-logo" id="main-logo">
-      <div class="brand-fallback" id="brand-fallback-text" style="display: none;">Cloudy</div>
+  <div class="app-scaffold">
+    <header class="flex items-center justify-between">
+      <div class="inline-flex items-center gap-3">
+        <img
+          src="logo.png"
+          alt="Cloudy"
+          class="h-9 w-auto object-contain"
+          onload="this.style.display='block'; document.getElementById('fallback-logo').style.display='none';"
+          onerror="this.style.display='none'; document.getElementById('fallback-logo').style.display='block';"
+        >
+        <span id="fallback-logo" style="display: none;" class="text-3xl font-extrabold tracking-tight text-white drop-shadow-[0_0_20px_rgba(56,189,248,0.4)]">
+          Cloudy
+        </span>
+      </div>
+
+      <div class="relative">
+        <button id="theme-menu-btn" class="px-4 py-2 rounded-full bg-slate-900/60 hover:bg-slate-800/80 border border-sky-400/20 hover:border-sky-400/50 backdrop-blur-md text-xs font-semibold tracking-wide text-sky-200 transition-all flex items-center gap-2 outline-none shadow-lg">
+          <svg class="w-4 h-4 text-sky-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m18.37 2.63 3 3L13.5 13.5l-3-3L18.37 2.63z"></path>
+            <path d="M12.5 12.5 9 16c-1.5 1.5-2.74 2-4.5 2-1 0-1.5-.5-1.5-1.5 0-1.76.5-3 2-4.5l3.5-3.5"></path>
+            <path d="m2 22 3-3"></path>
+          </svg>
+          <span id="theme-btn-label">Deep Ocean Waves</span>
+        </button>
+
+        <div id="theme-dropdown" class="absolute right-0 mt-2 w-64 rounded-2xl bg-slate-900/90 border border-sky-400/25 backdrop-blur-xl shadow-2xl p-2 hidden flex-col gap-1 z-50">
+          <button data-theme="random" class="theme-opt w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold text-sky-200 hover:bg-sky-500/20 hover:text-white transition-all flex items-center justify-between">
+            <span>🎲 Random on Launch</span>
+            <span class="check-mark text-sky-400"></span>
+          </button>
+          <button data-theme="ocean" class="theme-opt w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold text-sky-200 hover:bg-sky-500/20 hover:text-white transition-all flex items-center justify-between">
+            <span>🌊 Deep Ocean Waves</span>
+            <span class="check-mark text-sky-400"></span>
+          </button>
+          <button data-theme="nebula" class="theme-opt w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold text-sky-200 hover:bg-sky-500/20 hover:text-white transition-all flex items-center justify-between">
+            <span>✨ Starfield & Nebula</span>
+            <span class="check-mark text-sky-400"></span>
+          </button>
+          <button data-theme="aurora" class="theme-opt w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold text-sky-200 hover:bg-sky-500/20 hover:text-white transition-all flex items-center justify-between">
+            <span>🌌 Aurora Flow</span>
+            <span class="check-mark text-sky-400"></span>
+          </button>
+          <button data-theme="matrix" class="theme-opt w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold text-sky-200 hover:bg-sky-500/20 hover:text-white transition-all flex items-center justify-between">
+            <span>⚡ Cyber 3D Grid</span>
+            <span class="check-mark text-sky-400"></span>
+          </button>
+        </div>
+      </div>
     </header>
 
-    <div class="shelf-container" id="shelf-container">
-      <div class="shelf-scroll-area" id="shelf-scroll-area"></div>
-      <div class="custom-scrollbar-track" id="scrollbar-track">
-        <div class="custom-scrollbar-thumb" id="scrollbar-thumb"></div>
+    <main class="w-full max-w-7xl mx-auto flex flex-col justify-center my-auto">
+      <div id="empty-state" class="w-full flex flex-col items-center justify-center text-center py-16 hidden">
+        <div class="w-16 h-16 rounded-2xl bg-sky-500/10 border border-sky-400/20 flex items-center justify-center mb-6 shadow-[0_0_25px_rgba(56,189,248,0.15)]">
+          <svg class="w-8 h-8 text-sky-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z" />
+          </svg>
+        </div>
+        <h2 class="text-2xl md:text-3xl font-bold text-white tracking-tight">No Games Available</h2>
+        <p class="text-sm md:text-base text-sky-200/60 mt-3 max-w-md leading-relaxed">
+          Check your network connection or verify service status. Games will populate once configured.
+        </p>
+        <button id="retry-btn" class="mt-6 px-6 py-2.5 rounded-full bg-sky-500/15 hover:bg-sky-500/25 active:scale-95 border border-sky-400/30 text-sky-300 hover:text-sky-100 text-sm font-semibold tracking-wide transition-all inline-flex items-center gap-2 outline-none">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+          </svg>
+          Retry Connection
+        </button>
       </div>
-    </div>
 
-    <div class="details-pane">
-      <div class="details-title" id="details-title"></div>
-      <div class="details-description" id="details-description"></div>
-    </div>
+      <div id="games-section" class="w-full flex flex-col">
+        <div id="tiles-row" class="flex items-center gap-7 py-6 px-3 overflow-x-auto hide-scrollbar scroll-smooth"></div>
+
+        <div class="custom-scrollbar-track" id="scrollbar-track">
+          <div class="custom-scrollbar-thumb" id="scrollbar-thumb"></div>
+        </div>
+
+        <div id="info-panel" class="info-panel mt-7 min-h-[96px] max-w-2xl">
+          <h1 id="game-title" class="text-3xl md:text-4xl font-extrabold tracking-tight text-white drop-shadow-md"></h1>
+          <p id="game-desc" class="text-sm md:text-base text-sky-200/75 mt-2 leading-relaxed font-normal"></p>
+        </div>
+      </div>
+    </main>
+
+    <footer class="h-6"></footer>
   </div>
 
-  <div class="game-runtime-overlay" id="game-overlay">
-    <div class="hud-hover-zone">
-      <div class="hud-controls-dock">
-        <button class="hud-btn" id="btn-toggle-fullscreen">
-          <svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
-        </button>
-        <button class="hud-btn" id="btn-exit-game">
-          <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-        </button>
-      </div>
+  <div id="player-overlay" class="player-overlay">
+    <div id="hud-trigger-zone" class="hud-trigger-zone"></div>
+    <div id="hud-controls" class="hud-controls">
+      <button id="hud-fullscreen-btn" class="hud-btn" title="Toggle Fullscreen">
+        <svg class="w-4 h-4 text-sky-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+        </svg>
+        <span>Toggle Fullscreen</span>
+      </button>
+      <button id="hud-close-btn" class="hud-btn" title="Exit to cloudy dashboard">
+        <svg class="w-4 h-4 text-rose-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+        <span>Exit Game</span>
+      </button>
     </div>
-    <iframe class="game-frame" id="game-frame" allow="autoplay; fullscreen; gamepad"></iframe>
+
+    <div id="loading-curtain" class="loading-curtain">
+      <div class="spinner mb-4"></div>
+      <span id="loading-title" class="text-base font-semibold tracking-wide text-sky-200/80">Launching...</span>
+    </div>
+
+    <div id="player-container" class="w-full h-full flex items-center justify-center relative bg-black"></div>
   </div>
 
   <script>
-    const canvas = document.getElementById('ambient-waves');
+    const canvas = document.getElementById('bg-canvas');
     const ctx = canvas.getContext('2d');
     let width = 0;
     let height = 0;
-    let waveTime = 0;
+    let animId = null;
+    let currentTheme = 'ocean';
+    let isRandomTheme = false;
+    let simTime = 0;
+
+    const themeTitles = {
+      ocean: 'Deep Ocean Waves',
+      nebula: 'Starfield & Nebula',
+      aurora: 'Aurora Flow',
+      matrix: 'Cyber 3D Grid'
+    };
 
     function resizeCanvas() {
       width = window.innerWidth;
@@ -397,212 +417,565 @@
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
 
-    const waves = [
-      { speed: 0.0007, amplitude: 90, frequency: 0.0016, color: 'rgba(37, 99, 235, 0.28)', yOffset: 0.65 },
-      { speed: 0.0011, amplitude: 130, frequency: 0.0011, color: 'rgba(2, 132, 199, 0.24)', yOffset: 0.72 },
-      { speed: 0.0005, amplitude: 160, frequency: 0.0008, color: 'rgba(56, 189, 248, 0.16)', yOffset: 0.78 }
-    ];
+    const stars = Array.from({ length: 260 }, () => ({
+      x: (Math.random() - 0.5) * 2000,
+      y: (Math.random() - 0.5) * 2000,
+      z: Math.random() * 1500 + 100,
+      size: Math.random() * 2 + 1
+    }));
 
-    function renderWaves() {
-      waveTime += 1;
-      ctx.clearRect(0, 0, width, height);
+    function drawOcean() {
+      ctx.fillStyle = '#030712';
+      ctx.fillRect(0, 0, width, height);
 
-      waves.forEach(wave => {
+      const layers = [
+        { speed: 0.0006, amp: 85, freq: 0.0018, color: 'rgba(30, 64, 175, 0.4)', yOffset: 0.62 },
+        { speed: 0.0010, amp: 110, freq: 0.0012, color: 'rgba(2, 132, 199, 0.3)', yOffset: 0.70 },
+        { speed: 0.0005, amp: 145, freq: 0.0009, color: 'rgba(56, 189, 248, 0.22)', yOffset: 0.78 }
+      ];
+
+      layers.forEach(layer => {
         ctx.beginPath();
         ctx.moveTo(0, height);
-
         for (let x = 0; x <= width; x += 12) {
-          const y = height * wave.yOffset +
-            Math.sin(x * wave.frequency + waveTime * wave.speed) * wave.amplitude +
-            Math.sin(x * wave.frequency * 0.5 + waveTime * wave.speed * 0.8) * (wave.amplitude * 0.4);
+          const y = height * layer.yOffset +
+            Math.sin(x * layer.freq + simTime * layer.speed) * layer.amp +
+            Math.sin(x * layer.freq * 0.45 + simTime * layer.speed * 0.75) * (layer.amp * 0.4);
           ctx.lineTo(x, y);
         }
-
         ctx.lineTo(width, height);
         ctx.closePath();
-        ctx.fillStyle = wave.color;
+        ctx.fillStyle = layer.color;
         ctx.fill();
       });
-
-      requestAnimationFrame(renderWaves);
     }
-    requestAnimationFrame(renderWaves);
 
-    const logo = document.getElementById('main-logo');
-    const logoFallback = document.getElementById('brand-fallback-text');
-    logo.onerror = () => {
-      logo.style.display = 'none';
-      logoFallback.style.display = 'block';
-    };
+    function drawNebula() {
+      ctx.fillStyle = '#020617';
+      ctx.fillRect(0, 0, width, height);
 
-    const shelfArea = document.getElementById('shelf-scroll-area');
+      const grad = ctx.createRadialGradient(
+        width * 0.55 + Math.cos(simTime * 0.00025) * 80,
+        height * 0.48 + Math.sin(simTime * 0.0002) * 60,
+        40,
+        width * 0.5,
+        height * 0.5,
+        width * 0.75
+      );
+      grad.addColorStop(0, 'rgba(56, 189, 248, 0.22)');
+      grad.addColorStop(0.45, 'rgba(37, 99, 235, 0.12)');
+      grad.addColorStop(1, 'rgba(2, 6, 23, 0)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, width, height);
+
+      const cx = width / 2;
+      const cy = height / 2;
+
+      for (let s of stars) {
+        s.z -= 0.35;
+        if (s.z <= 10) {
+          s.z = 1500;
+          s.x = (Math.random() - 0.5) * 2000;
+          s.y = (Math.random() - 0.5) * 2000;
+        }
+
+        const k = 450 / s.z;
+        const px = s.x * k + cx;
+        const py = s.y * k + cy;
+
+        if (px >= 0 && px <= width && py >= 0 && py <= height) {
+          const sz = Math.max(0.6, (1 - s.z / 1500) * 2.4);
+          const alpha = Math.min(0.9, Math.max(0.1, 1 - s.z / 1500));
+          ctx.fillStyle = `rgba(186, 230, 253, ${alpha})`;
+          ctx.beginPath();
+          ctx.arc(px, py, sz, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+    }
+
+    function drawAurora() {
+      ctx.fillStyle = '#020617';
+      ctx.fillRect(0, 0, width, height);
+
+      const curtainCount = 18;
+      const step = width / curtainCount;
+
+      for (let i = 0; i < curtainCount; i++) {
+        const x = i * step + Math.sin(simTime * 0.0008 + i * 0.4) * 35;
+        const beamW = step * 1.8;
+        const sway = Math.sin(simTime * 0.001 + i * 0.35) * 80;
+        const reach = height * (0.65 + Math.sin(simTime * 0.0012 + i * 0.5) * 0.2);
+
+        const beamGrad = ctx.createLinearGradient(x + sway, 0, x - sway, reach);
+        const huePhase = (i % 3);
+        if (huePhase === 0) {
+          beamGrad.addColorStop(0, 'rgba(6, 182, 212, 0)');
+          beamGrad.addColorStop(0.2, 'rgba(6, 182, 212, 0.22)');
+          beamGrad.addColorStop(0.6, 'rgba(56, 189, 248, 0.16)');
+          beamGrad.addColorStop(1, 'rgba(2, 6, 23, 0)');
+        } else if (huePhase === 1) {
+          beamGrad.addColorStop(0, 'rgba(37, 99, 235, 0)');
+          beamGrad.addColorStop(0.25, 'rgba(37, 99, 235, 0.26)');
+          beamGrad.addColorStop(0.7, 'rgba(129, 140, 248, 0.14)');
+          beamGrad.addColorStop(1, 'rgba(2, 6, 23, 0)');
+        } else {
+          beamGrad.addColorStop(0, 'rgba(14, 165, 233, 0)');
+          beamGrad.addColorStop(0.3, 'rgba(14, 165, 233, 0.2)');
+          beamGrad.addColorStop(0.75, 'rgba(2, 132, 199, 0.1)');
+          beamGrad.addColorStop(1, 'rgba(2, 6, 23, 0)');
+        }
+
+        ctx.fillStyle = beamGrad;
+        ctx.fillRect(x - beamW * 0.5, 0, beamW, reach);
+      }
+    }
+
+    function drawMatrix() {
+      ctx.fillStyle = '#020713';
+      ctx.fillRect(0, 0, width, height);
+
+      const horizon = height * 0.44;
+      const groundH = height - horizon;
+      const speed = (simTime * 0.006) % 1;
+
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.25)';
+      ctx.lineWidth = 1;
+
+      const totalH = 14;
+      for (let i = 0; i <= totalH; i++) {
+        const p = (i + speed) / totalH;
+        const normY = Math.pow(p, 2.6);
+        const lineY = horizon + normY * groundH;
+
+        if (lineY >= horizon && lineY <= height) {
+          ctx.beginPath();
+          ctx.moveTo(0, lineY);
+          ctx.lineTo(width, lineY);
+          ctx.stroke();
+        }
+      }
+
+      const totalV = 24;
+      for (let i = -totalV; i <= totalV * 2; i++) {
+        const bottomX = (i / totalV) * width;
+        const topX = width * 0.5 + (bottomX - width * 0.5) * 0.06;
+
+        ctx.beginPath();
+        ctx.moveTo(topX, horizon);
+        ctx.lineTo(bottomX, height);
+        ctx.stroke();
+      }
+
+      const glow = ctx.createLinearGradient(0, horizon - 90, 0, horizon + 50);
+      glow.addColorStop(0, 'rgba(56, 189, 248, 0)');
+      glow.addColorStop(0.55, 'rgba(56, 189, 248, 0.35)');
+      glow.addColorStop(1, 'rgba(56, 189, 248, 0)');
+      ctx.fillStyle = glow;
+      ctx.fillRect(0, horizon - 90, width, 140);
+    }
+
+    function animate() {
+      simTime += 1;
+      if (currentTheme === 'ocean') drawOcean();
+      else if (currentTheme === 'nebula') drawNebula();
+      else if (currentTheme === 'aurora') drawAurora();
+      else if (currentTheme === 'matrix') drawMatrix();
+      animId = requestAnimationFrame(animate);
+    }
+    requestAnimationFrame(animate);
+
+    const themeMenuBtn = document.getElementById('theme-menu-btn');
+    const themeDropdown = document.getElementById('theme-dropdown');
+    const themeBtnLabel = document.getElementById('theme-btn-label');
+    const themeOptions = document.querySelectorAll('.theme-opt');
+
+    function setTheme(themeKey, isRandom = false) {
+      isRandomTheme = isRandom;
+      if (isRandom) {
+        const keys = ['ocean', 'nebula', 'aurora', 'matrix'];
+        currentTheme = keys[Math.floor(Math.random() * keys.length)];
+        themeBtnLabel.textContent = `Random (${themeTitles[currentTheme]})`;
+      } else {
+        currentTheme = themeKey;
+        themeBtnLabel.textContent = themeTitles[themeKey];
+      }
+
+      themeOptions.forEach(opt => {
+        const mark = opt.querySelector('.check-mark');
+        const optTheme = opt.getAttribute('data-theme');
+        if (isRandom && optTheme === 'random') {
+          mark.textContent = '✓';
+        } else if (!isRandom && optTheme === currentTheme) {
+          mark.textContent = '✓';
+        } else {
+          mark.textContent = '';
+        }
+      });
+    }
+
+    themeMenuBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      themeDropdown.classList.toggle('hidden');
+      themeDropdown.classList.toggle('flex');
+    });
+
+    document.addEventListener('click', () => {
+      themeDropdown.classList.add('hidden');
+      themeDropdown.classList.remove('flex');
+    });
+
+    themeOptions.forEach(opt => {
+      opt.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const sel = opt.getAttribute('data-theme');
+        if (sel === 'random') {
+          setTheme('ocean', true);
+        } else {
+          setTheme(sel, false);
+        }
+        themeDropdown.classList.add('hidden');
+        themeDropdown.classList.remove('flex');
+      });
+    });
+
+    const initialThemes = ['ocean', 'nebula', 'aurora', 'matrix'];
+    setTheme(initialThemes[Math.floor(Math.random() * initialThemes.length)], false);
+
+    const emptyState = document.getElementById('empty-state');
+    const gamesSection = document.getElementById('games-section');
+    const tilesRow = document.getElementById('tiles-row');
     const scrollbarThumb = document.getElementById('scrollbar-thumb');
-    const detailsTitle = document.getElementById('details-title');
-    const detailsDescription = document.getElementById('details-description');
-    const shelfContainer = document.getElementById('shelf-container');
+    const infoPanel = document.getElementById('info-panel');
+    const titleEl = document.getElementById('game-title');
+    const descEl = document.getElementById('game-desc');
+    const retryBtn = document.getElementById('retry-btn');
 
-    const gameOverlay = document.getElementById('game-overlay');
-    const gameFrame = document.getElementById('game-frame');
-    const btnExit = document.getElementById('btn-exit-game');
-    const btnFullscreen = document.getElementById('btn-toggle-fullscreen');
+    const playerOverlay = document.getElementById('player-overlay');
+    const playerContainer = document.getElementById('player-container');
+    const loadingCurtain = document.getElementById('loading-curtain');
+    const loadingTitle = document.getElementById('loading-title');
+    const hudCloseBtn = document.getElementById('hud-close-btn');
+    const hudFullscreenBtn = document.getElementById('hud-fullscreen-btn');
 
-    shelfArea.addEventListener('wheel', (e) => {
-      e.preventDefault();
-      shelfArea.scrollLeft += e.deltaY;
-    }, { passive: false });
+    let games = [];
+    let switchTimeout = null;
+    let hideTimeout = null;
+    let isPanelVisible = false;
 
-    function syncScrollbar() {
-      const scrollWidth = shelfArea.scrollWidth - shelfArea.clientWidth;
-      if (scrollWidth <= 0) {
+    async function loadCatalog() {
+      try {
+        const response = await fetch(`games.json?t=${Date.now()}`);
+        if (response.ok) {
+          const data = await response.json();
+          if (Array.isArray(data) && data.length > 0) {
+            games = data;
+            renderGames();
+            return;
+          }
+        }
+      } catch (err) {}
+
+      games = [];
+      renderGames();
+    }
+
+    function updateScrollbar() {
+      const maxScroll = tilesRow.scrollWidth - tilesRow.clientWidth;
+      if (maxScroll <= 0) {
         scrollbarThumb.style.width = '100%';
         scrollbarThumb.style.left = '0%';
         return;
       }
-      const thumbRatio = shelfArea.clientWidth / shelfArea.scrollWidth;
-      const thumbWidthPercent = Math.max(thumbRatio * 100, 8);
-      const scrollPercent = shelfArea.scrollLeft / scrollWidth;
+      const viewRatio = tilesRow.clientWidth / tilesRow.scrollWidth;
+      const thumbWidthPercent = Math.max(viewRatio * 100, 10);
+      const scrollProgress = tilesRow.scrollLeft / maxScroll;
       const maxLeftPercent = 100 - thumbWidthPercent;
 
       scrollbarThumb.style.width = `${thumbWidthPercent}%`;
-      scrollbarThumb.style.left = `${scrollPercent * maxLeftPercent}%`;
+      scrollbarThumb.style.left = `${scrollProgress * maxLeftPercent}%`;
     }
-    shelfArea.addEventListener('scroll', syncScrollbar);
+    tilesRow.addEventListener('scroll', updateScrollbar);
 
-    function setFocusedGame(game) {
-      if (!game) {
-        detailsTitle.classList.remove('active');
-        detailsDescription.classList.remove('active');
+    tilesRow.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      tilesRow.scrollLeft += e.deltaY * 1.5;
+    }, { passive: false });
+
+    function renderGames() {
+      if (!games || games.length === 0) {
+        emptyState.classList.remove('hidden');
+        gamesSection.classList.add('hidden');
         return;
       }
-      detailsTitle.textContent = game.title;
-      detailsDescription.textContent = game.description;
-      detailsTitle.classList.add('active');
-      detailsDescription.classList.add('active');
-    }
 
-    function clearFocusedGame() {
-      detailsTitle.classList.remove('active');
-      detailsDescription.classList.remove('active');
-    }
+      emptyState.classList.add('hidden');
+      gamesSection.classList.remove('hidden');
+      tilesRow.innerHTML = '';
 
-    async function launchGame(game) {
-      if (!game || !game.path) return;
+      games.forEach((game, index) => {
+        const container = document.createElement('div');
+        container.className = 'game-tile-container';
+        container.tabIndex = 0;
+        container.setAttribute('data-title', game.title || 'Untitled');
+        container.setAttribute('data-desc', game.desc || game.description || '');
 
-      try {
-        if (!document.fullscreenElement) {
-          await document.documentElement.requestFullscreen();
+        const focusBorder = document.createElement('div');
+        focusBorder.className = 'switch-focus-border';
+
+        const tile = document.createElement('div');
+        tile.className = 'game-tile';
+
+        const cardGradients = [
+          'radial-gradient(circle at 30% 30%, #38bdf8 0%, #1e40af 60%, #030712 100%)',
+          'radial-gradient(circle at 30% 30%, #818cf8 0%, #3730a3 60%, #030712 100%)',
+          'radial-gradient(circle at 30% 30%, #06b6d4 0%, #0e7490 60%, #030712 100%)'
+        ];
+        tile.style.background = cardGradients[index % cardGradients.length];
+
+        if (game.cover) {
+          const img = new Image();
+          img.src = game.cover.startsWith('http') ? game.cover : `./${game.cover}`;
+          img.onload = () => {
+            tile.style.backgroundImage = `url("${img.src}")`;
+          };
         }
-      } catch (err) {}
 
-      gameFrame.src = game.path;
-      gameOverlay.classList.add('running');
+        const tileLabel = document.createElement('div');
+        tileLabel.className = 'absolute bottom-4 left-4 right-4 pointer-events-none drop-shadow-md';
+        tileLabel.innerHTML = `
+          <div class="text-xs font-bold uppercase tracking-wider text-sky-300">INSTANT PLAY</div>
+          <div class="text-lg font-extrabold text-white truncate">${game.title}</div>
+        `;
+        tile.appendChild(tileLabel);
+
+        container.appendChild(focusBorder);
+        container.appendChild(tile);
+        tilesRow.appendChild(container);
+
+        function handleFocus() {
+          clearTimeout(hideTimeout);
+          clearTimeout(switchTimeout);
+
+          const newTitle = container.getAttribute('data-title');
+          const newDesc = container.getAttribute('data-desc');
+
+          if (!isPanelVisible) {
+            titleEl.textContent = newTitle;
+            descEl.textContent = newDesc;
+            infoPanel.classList.remove('switching');
+            infoPanel.classList.add('visible');
+            isPanelVisible = true;
+          } else if (titleEl.textContent !== newTitle) {
+            infoPanel.classList.add('switching');
+            switchTimeout = setTimeout(() => {
+              titleEl.textContent = newTitle;
+              descEl.textContent = newDesc;
+              infoPanel.classList.remove('switching');
+            }, 120);
+          }
+        }
+
+        function handleBlur() {
+          clearTimeout(switchTimeout);
+          hideTimeout = setTimeout(() => {
+            infoPanel.classList.remove('visible', 'switching');
+            isPanelVisible = false;
+          }, 100);
+        }
+
+        container.addEventListener('mouseenter', handleFocus);
+        container.addEventListener('focus', handleFocus);
+        container.addEventListener('mouseleave', handleBlur);
+        container.addEventListener('blur', handleBlur);
+
+        container.addEventListener('click', () => {
+          launchGame(game);
+        });
+      });
+
+      updateScrollbar();
+    }
+
+    function createBuiltinArcade(title) {
+      const container = document.createElement('div');
+      container.className = 'w-full h-full flex flex-col items-center justify-center relative bg-slate-950';
+
+      const gameCanvas = document.createElement('canvas');
+      gameCanvas.className = 'w-full h-full block';
+      container.appendChild(gameCanvas);
+
+      const banner = document.createElement('div');
+      banner.className = 'absolute top-8 left-8 pointer-events-none';
+      banner.innerHTML = `
+        <div class="text-xs uppercase tracking-widest text-sky-400 font-bold">Cloudy Runtime</div>
+        <div class="text-2xl font-black text-white">${title}</div>
+        <div class="text-xs text-sky-200/60 mt-1">Move cursor to steer & dodge hazards</div>
+      `;
+      container.appendChild(banner);
+
+      setTimeout(() => {
+        const gctx = gameCanvas.getContext('2d');
+        let gW = gameCanvas.width = container.clientWidth || window.innerWidth;
+        let gH = gameCanvas.height = container.clientHeight || window.innerHeight;
+
+        let playerX = gW / 2;
+        let playerY = gH * 0.8;
+        let obstacles = [];
+        let score = 0;
+        let running = true;
+
+        const onMove = (e) => {
+          const rect = gameCanvas.getBoundingClientRect();
+          playerX = e.clientX - rect.left;
+        };
+        window.addEventListener('mousemove', onMove);
+
+        function gameLoop() {
+          if (!running) return;
+          gctx.fillStyle = 'rgba(2, 6, 23, 0.3)';
+          gctx.fillRect(0, 0, gW, gH);
+
+          score += 1;
+
+          if (Math.random() < 0.08) {
+            obstacles.push({
+              x: Math.random() * gW,
+              y: -20,
+              size: Math.random() * 24 + 14,
+              speed: Math.random() * 4 + 4
+            });
+          }
+
+          for (let i = obstacles.length - 1; i >= 0; i--) {
+            const obs = obstacles[i];
+            obs.y += obs.speed;
+
+            gctx.fillStyle = '#38bdf8';
+            gctx.shadowColor = '#0284c7';
+            gctx.shadowBlur = 15;
+            gctx.beginPath();
+            gctx.arc(obs.x, obs.y, obs.size, 0, Math.PI * 2);
+            gctx.fill();
+            gctx.shadowBlur = 0;
+
+            if (obs.y > gH + 50) obstacles.splice(i, 1);
+          }
+
+          gctx.fillStyle = '#ffffff';
+          gctx.shadowColor = '#38bdf8';
+          gctx.shadowBlur = 20;
+          gctx.beginPath();
+          gctx.moveTo(playerX, playerY - 18);
+          gctx.lineTo(playerX - 16, playerY + 16);
+          gctx.lineTo(playerX + 16, playerY + 16);
+          gctx.closePath();
+          gctx.fill();
+          gctx.shadowBlur = 0;
+
+          gctx.fillStyle = '#f8fafc';
+          gctx.font = 'bold 16px Plus Jakarta Sans, sans-serif';
+          gctx.fillText(`SCORE: ${score}`, gW - 140, 48);
+
+          container._animId = requestAnimationFrame(gameLoop);
+        }
+        gameLoop();
+
+        container._cleanup = () => {
+          running = false;
+          cancelAnimationFrame(container._animId);
+          window.removeEventListener('mousemove', onMove);
+        };
+      }, 50);
+
+      return container;
+    }
+
+    let activeBuiltin = null;
+
+    function launchGame(game) {
+      playerContainer.innerHTML = '';
+      loadingTitle.textContent = game.title || 'Launching...';
+      loadingCurtain.classList.remove('hidden-curtain');
+      playerOverlay.classList.add('active');
+
+      if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else if (document.documentElement.webkitRequestFullscreen) {
+        document.documentElement.webkitRequestFullscreen();
+      }
+
+      if (game.path) {
+        const iframe = document.createElement('iframe');
+        iframe.className = 'w-full h-full border-0';
+        iframe.src = game.path.startsWith('http') ? game.path : `./${game.path}`;
+        iframe.allow = 'autoplay; fullscreen; gamepad; focus-without-user-activation *';
+        iframe.setAttribute('allowfullscreen', 'true');
+
+        iframe.onload = () => {
+          setTimeout(() => {
+            loadingCurtain.classList.add('hidden-curtain');
+          }, 800);
+        };
+
+        iframe.onerror = () => {
+          playerContainer.innerHTML = `
+            <div class="text-center p-8">
+              <div class="text-xl font-bold text-rose-400">Failed to load build</div>
+              <div class="text-sm text-slate-400 mt-2">Resource path not found: ${game.path}</div>
+            </div>
+          `;
+          loadingCurtain.classList.add('hidden-curtain');
+        };
+
+        playerContainer.appendChild(iframe);
+      } else {
+        setTimeout(() => {
+          loadingCurtain.classList.add('hidden-curtain');
+        }, 800);
+      }
     }
 
     function closeGame() {
-      gameOverlay.classList.remove('running');
+      playerOverlay.classList.remove('active');
+
       setTimeout(() => {
-        gameFrame.src = 'about:blank';
-      }, 800);
-      if (document.fullscreenElement) {
-        document.exitFullscreen().catch(() => {});
+        playerContainer.innerHTML = '';
+        loadingCurtain.classList.remove('hidden-curtain');
+      }, 700);
+
+      if (document.fullscreenElement || document.webkitFullscreenElement) {
+        if (document.exitFullscreen) {
+          document.exitFullscreen().catch(() => {});
+        } else if (document.webkitExitFullscreen) {
+          document.webkitExitFullscreen();
+        }
       }
     }
 
-    btnExit.addEventListener('click', closeGame);
+    hudCloseBtn.addEventListener('click', closeGame);
 
-    btnFullscreen.addEventListener('click', () => {
-      if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch(() => {});
+    hudFullscreenBtn.addEventListener('click', () => {
+      if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+        if (document.documentElement.requestFullscreen) {
+          document.documentElement.requestFullscreen().catch(() => {});
+        } else if (document.documentElement.webkitRequestFullscreen) {
+          document.documentElement.webkitRequestFullscreen();
+        }
       } else {
-        document.exitFullscreen().catch(() => {});
+        if (document.exitFullscreen) {
+          document.exitFullscreen().catch(() => {});
+        } else if (document.webkitExitFullscreen) {
+          document.webkitExitFullscreen();
+        }
       }
     });
 
-    async function loadGames() {
-      shelfArea.innerHTML = '';
-      clearFocusedGame();
+    retryBtn.addEventListener('click', () => {
+      loadCatalog();
+    });
 
-      try {
-        const response = await fetch(`games.json?t=${Date.now()}`);
-        if (!response.ok) throw new Error();
-        const games = await response.json();
-
-        if (!Array.isArray(games) || games.length === 0) {
-          renderEmptyState();
-          return;
-        }
-
-        renderGames(games);
-      } catch (err) {
-        renderEmptyState();
-      }
-    }
-
-    function renderGames(games) {
-      shelfContainer.style.display = 'flex';
-
-      games.forEach(game => {
-        const tile = document.createElement('div');
-        tile.className = 'game-tile';
-        tile.tabIndex = 0;
-
-        const tileInner = document.createElement('div');
-        tileInner.className = 'game-tile-inner';
-
-        const cover = document.createElement('img');
-        cover.className = 'game-cover-art';
-        cover.alt = game.title || 'Game Cover';
-        cover.src = game.cover ? (game.cover.startsWith('http') ? game.cover : `./${game.cover}`) : '';
-        cover.onerror = () => {
-          cover.style.display = 'none';
-        };
-
-        const border = document.createElement('div');
-        border.className = 'game-tile-border';
-
-        tileInner.appendChild(cover);
-        tile.appendChild(tileInner);
-        tile.appendChild(border);
-
-        tile.addEventListener('mouseenter', () => setFocusedGame(game));
-        tile.addEventListener('mouseleave', clearFocusedGame);
-        tile.addEventListener('focus', () => setFocusedGame(game));
-        tile.addEventListener('blur', clearFocusedGame);
-        tile.addEventListener('click', () => launchGame(game));
-
-        shelfArea.appendChild(tile);
-      });
-
-      syncScrollbar();
-    }
-
-    function renderEmptyState() {
-      shelfArea.innerHTML = '';
-      const emptyBox = document.createElement('div');
-      emptyBox.className = 'empty-shelf';
-
-      const title = document.createElement('div');
-      title.className = 'empty-shelf-title';
-      title.textContent = 'No Available Games';
-
-      const subtitle = document.createElement('div');
-      subtitle.className = 'empty-shelf-subtitle';
-      subtitle.textContent = 'Check your connection or verify service status. Games will appear automatically once deployed.';
-
-      const btn = document.createElement('button');
-      btn.className = 'retry-button';
-      btn.textContent = 'Retry';
-      btn.onclick = loadGames;
-
-      emptyBox.appendChild(title);
-      emptyBox.appendChild(subtitle);
-      emptyBox.appendChild(btn);
-
-      shelfArea.appendChild(emptyBox);
-      syncScrollbar();
-    }
-
-    loadGames();
+    loadCatalog();
   </script>
 </body>
 </html>
