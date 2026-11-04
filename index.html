@@ -4,357 +4,605 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cloudy</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     * {
-      font-family: 'Plus Jakarta Sans', sans-serif;
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
       user-select: none;
       -webkit-user-select: none;
-      box-sizing: border-box;
     }
 
     body {
-      background-color: #020817;
+      background-color: #030712;
       color: #f8fafc;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       overflow: hidden;
-      margin: 0;
-      padding: 0;
+      width: 100vw;
+      height: 100vh;
     }
 
-    .abstract-bg {
+    .ambient-canvas {
       position: fixed;
-      inset: 0;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
       z-index: 0;
       pointer-events: none;
-      background: linear-gradient(135deg, #020617 0%, #071936 45%, #030b1c 100%);
-      overflow: hidden;
     }
 
-    .abstract-svg {
-      position: absolute;
-      width: 130%;
-      height: 130%;
-      top: -15%;
-      left: -15%;
-      filter: blur(65px);
-      opacity: 0.85;
-      animation: gentleWave 28s ease-in-out infinite alternate;
-    }
-
-    @keyframes gentleWave {
-      0% {
-        transform: scale(1) translate(0%, 0%) rotate(0deg);
-      }
-      100% {
-        transform: scale(1.04) translate(-1.5%, 1.5%) rotate(1deg);
-      }
-    }
-
-    .custom-scrollbar {
-      scrollbar-width: thin;
-      scrollbar-color: rgba(56, 189, 248, 0.45) rgba(2, 6, 23, 0.35);
-    }
-
-    .custom-scrollbar::-webkit-scrollbar {
-      height: 8px;
-    }
-
-    .custom-scrollbar::-webkit-scrollbar-track {
-      background: rgba(2, 6, 23, 0.45);
-      border-radius: 9999px;
-      margin-left: 24px;
-      margin-right: 24px;
-      border: 1px solid rgba(56, 189, 248, 0.08);
-    }
-
-    .custom-scrollbar::-webkit-scrollbar-thumb {
-      background: linear-gradient(90deg, #0284c7, #38bdf8);
-      border-radius: 9999px;
-      box-shadow: 0 0 12px rgba(56, 189, 248, 0.45);
-    }
-
-    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-      background: linear-gradient(90deg, #0ea5e9, #7dd3fc);
-    }
-
-    .game-tile-container {
-      width: 320px;
-      aspect-ratio: 16 / 9;
-      flex-shrink: 0;
+    .app-viewport {
       position: relative;
-      cursor: pointer;
-      border-radius: 20px;
-      overflow: visible;
+      z-index: 10;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 48px 56px;
     }
 
-    .switch-focus-border {
-      position: absolute;
-      inset: 0;
-      border-radius: 20px;
-      border: 5px solid transparent;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.2s cubic-bezier(0.2, 0.8, 0.25, 1);
-      box-sizing: border-box;
-      z-index: 2;
+    .brand-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .brand-logo {
+      height: 38px;
+      max-width: 180px;
+      object-fit: contain;
+    }
+
+    .brand-fallback {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: #ffffff;
+      text-shadow: 0 0 24px rgba(56, 189, 248, 0.4);
+    }
+
+    .shelf-container {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      width: 100%;
+      margin-top: auto;
+      margin-bottom: 24px;
+    }
+
+    .shelf-scroll-area {
+      display: flex;
+      gap: 28px;
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding: 18px 4px;
+      scroll-behavior: smooth;
+      scrollbar-width: none;
+    }
+
+    .shelf-scroll-area::-webkit-scrollbar {
+      display: none;
     }
 
     .game-tile {
+      position: relative;
+      flex: 0 0 340px;
+      aspect-ratio: 16 / 9;
+      border-radius: 20px;
+      background: #090e1a;
+      cursor: pointer;
+      outline: none;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .game-tile-inner {
       width: 100%;
       height: 100%;
-      border-radius: 20px;
-      position: relative;
+      border-radius: inherit;
       overflow: hidden;
-      box-shadow: 0 12px 28px -8px rgba(2, 6, 23, 0.7);
-      transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.25, 1),
-                  border-radius 0.2s cubic-bezier(0.2, 0.8, 0.25, 1);
-      transform-origin: center center;
+      position: relative;
+      background: radial-gradient(circle at center, #1e293b, #090d16);
+      transform-origin: center;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    .game-tile-container:hover .game-tile {
-      transform: scale(0.96875);
-      border-radius: 16px;
+    .game-cover-art {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
     }
 
-    .game-tile-container:hover .switch-focus-border {
+    .game-tile-border {
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      pointer-events: none;
+      opacity: 0;
+      border: 5px solid #2563eb;
+      box-shadow: inset 0 0 16px rgba(56, 189, 248, 0.5), 0 0 24px rgba(37, 99, 235, 0.6);
+      transition: opacity 0.3s ease;
+    }
+
+    .game-tile:hover .game-tile-inner,
+    .game-tile:focus-visible .game-tile-inner {
+      transform: scale(0.97);
+    }
+
+    .game-tile:hover .game-tile-border,
+    .game-tile:focus-visible .game-tile-border {
       opacity: 1;
-      animation: switchColorCycle 2s ease-in-out infinite alternate;
+      animation: switchBorderShift 2.4s ease-in-out infinite alternate;
     }
 
-    @keyframes switchColorCycle {
+    .game-tile:active .game-tile-inner {
+      transform: scale(0.94);
+    }
+
+    @keyframes switchBorderShift {
       0% {
         border-color: #2563eb;
-        box-shadow: 0 0 20px rgba(37, 99, 235, 0.8),
-                    inset 0 0 10px rgba(37, 99, 235, 0.45);
+        box-shadow: inset 0 0 16px rgba(37, 99, 235, 0.6), 0 0 20px rgba(37, 99, 235, 0.5);
       }
       50% {
         border-color: #0284c7;
-        box-shadow: 0 0 24px rgba(2, 132, 199, 0.9),
-                    inset 0 0 12px rgba(2, 132, 199, 0.55);
+        box-shadow: inset 0 0 22px rgba(2, 132, 199, 0.8), 0 0 32px rgba(2, 132, 199, 0.7);
       }
       100% {
         border-color: #38bdf8;
-        box-shadow: 0 0 28px rgba(56, 189, 248, 1),
-                    inset 0 0 14px rgba(56, 189, 248, 0.7);
+        box-shadow: inset 0 0 18px rgba(56, 189, 248, 0.9), 0 0 28px rgba(56, 189, 248, 0.8);
       }
     }
 
-    .game-tile-container:active .game-tile {
-      transform: scale(0.94);
-      transition-duration: 0.08s;
+    .custom-scrollbar-track {
+      width: calc(100% - 48px);
+      margin: 0 auto;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 999px;
+      position: relative;
+      overflow: hidden;
     }
 
-    .game-tile-container:active .switch-focus-border {
-      transform: scale(0.975);
-      transition-duration: 0.08s;
+    .custom-scrollbar-thumb {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 20%;
+      background: linear-gradient(90deg, #2563eb, #38bdf8);
+      border-radius: 999px;
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.7);
+      transition: left 0.1s ease-out, width 0.1s ease-out;
     }
 
-    .info-panel {
-      opacity: 0;
-      transform: translateY(10px);
-      transition: opacity 0.26s cubic-bezier(0.25, 1, 0.5, 1),
-                  transform 0.26s cubic-bezier(0.25, 1, 0.5, 1);
+    .details-pane {
+      min-height: 120px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
       pointer-events: none;
     }
 
-    .info-panel.visible {
+    .details-title {
+      font-size: 38px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: #ffffff;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .details-description {
+      margin-top: 6px;
+      font-size: 16px;
+      line-height: 1.5;
+      color: rgba(255, 255, 255, 0.7);
+      max-width: 640px;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      transition-delay: 0.04s;
+    }
+
+    .details-title.active,
+    .details-description.active {
       opacity: 1;
       transform: translateY(0);
     }
 
-    .info-panel.switching {
+    .empty-shelf {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      width: 100%;
+      padding: 64px 0;
+    }
+
+    .empty-shelf-title {
+      font-size: 26px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 8px;
+    }
+
+    .empty-shelf-subtitle {
+      font-size: 15px;
+      color: rgba(255, 255, 255, 0.5);
+      max-width: 440px;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+
+    .retry-button {
+      padding: 12px 32px;
+      border-radius: 999px;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      background: rgba(14, 165, 233, 0.12);
+      color: #38bdf8;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      outline: none;
+      backdrop-filter: blur(8px);
+      transition: all 0.25s ease;
+    }
+
+    .retry-button:hover {
+      background: rgba(14, 165, 233, 0.28);
+      border-color: #38bdf8;
+      box-shadow: 0 0 24px rgba(56, 189, 248, 0.4);
+      transform: scale(1.04);
+    }
+
+    .game-runtime-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      background: #000000;
+      display: flex;
+      flex-direction: column;
       opacity: 0;
-      transform: translateY(5px);
-      transition: opacity 0.13s ease-out, transform 0.13s ease-out;
+      pointer-events: none;
+      transform: scale(0.96);
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .game-runtime-overlay.running {
+      opacity: 1;
+      pointer-events: all;
+      transform: scale(1);
+    }
+
+    .game-frame {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: #000000;
+    }
+
+    .hud-hover-zone {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 240px;
+      height: 140px;
+      z-index: 120;
+      display: flex;
+      justify-content: flex-end;
+      align-items: flex-start;
+      padding: 24px;
+    }
+
+    .hud-controls-dock {
+      display: flex;
+      gap: 12px;
+      opacity: 0;
+      transform: translateY(-8px);
+      pointer-events: none;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .hud-hover-zone:hover .hud-controls-dock {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: all;
+    }
+
+    .hud-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(15, 23, 42, 0.7);
+      backdrop-filter: blur(16px);
+      color: #ffffff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .hud-btn:hover {
+      background: rgba(37, 99, 235, 0.8);
+      border-color: #38bdf8;
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.6);
+      transform: scale(1.08);
+    }
+
+    .hud-btn svg {
+      width: 20px;
+      height: 20px;
+      fill: currentColor;
     }
   </style>
 </head>
-<body class="h-screen w-screen flex flex-col justify-between">
+<body>
 
-  <div class="abstract-bg">
-    <svg class="abstract-svg" viewBox="0 0 1440 900" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
-      <defs>
-        <linearGradient id="wave1" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#0284c7" stop-opacity="0.75" />
-          <stop offset="50%" stop-color="#2563eb" stop-opacity="0.55" />
-          <stop offset="100%" stop-color="#0f172a" stop-opacity="0.1" />
-        </linearGradient>
-        <linearGradient id="wave2" x1="100%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stop-color="#06b6d4" stop-opacity="0.65" />
-          <stop offset="55%" stop-color="#1d4ed8" stop-opacity="0.5" />
-          <stop offset="100%" stop-color="#0369a1" stop-opacity="0.2" />
-        </linearGradient>
-        <linearGradient id="wave3" x1="20%" y1="100%" x2="80%" y2="0%">
-          <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.5" />
-          <stop offset="60%" stop-color="#0284c7" stop-opacity="0.4" />
-          <stop offset="100%" stop-color="#1e3a8a" stop-opacity="0.1" />
-        </linearGradient>
-      </defs>
-      <path d="M-150 220 C 320 -80, 680 480, 1180 180 C 1420 40, 1580 320, 1650 450 L 1650 980 L -150 980 Z" fill="url(#wave1)" />
-      <path d="M-100 580 C 260 320, 740 780, 1240 420 C 1480 240, 1550 580, 1650 680 L 1650 980 L -100 980 Z" fill="url(#wave2)" />
-      <ellipse cx="320" cy="240" rx="420" ry="260" fill="url(#wave3)" />
-      <ellipse cx="1150" cy="640" rx="480" ry="290" fill="url(#wave2)" />
-      <path d="M180 -60 C 560 280, 920 -120, 1380 240 C 1540 360, 1420 620, 1120 520 C 720 380, 380 680, -60 420 Z" fill="url(#wave3)" />
-    </svg>
+  <canvas id="ambient-waves" class="ambient-canvas"></canvas>
+
+  <div class="app-viewport">
+    <header class="brand-header">
+      <img src="logo.png" alt="Cloudy" class="brand-logo" id="main-logo">
+      <div class="brand-fallback" id="brand-fallback-text" style="display: none;">Cloudy</div>
+    </header>
+
+    <div class="shelf-container" id="shelf-container">
+      <div class="shelf-scroll-area" id="shelf-scroll-area"></div>
+      <div class="custom-scrollbar-track" id="scrollbar-track">
+        <div class="custom-scrollbar-thumb" id="scrollbar-thumb"></div>
+      </div>
+    </div>
+
+    <div class="details-pane">
+      <div class="details-title" id="details-title"></div>
+      <div class="details-description" id="details-description"></div>
+    </div>
   </div>
 
-  <header class="relative z-10 px-10 md:px-16 pt-9">
-    <div class="inline-flex items-center">
-      <img
-        src="logo.png"
-        alt="Cloudy"
-        class="h-10 w-auto object-contain"
-        onload="this.style.display='block'; document.getElementById('fallback-logo').style.display='none';"
-        onerror="this.style.display='none'; document.getElementById('fallback-logo').style.display='block';"
-      >
-      <span id="fallback-logo" style="display: none;" class="text-2xl font-bold tracking-tight text-white">
-        Cloudy
-      </span>
-    </div>
-  </header>
-
-  <main class="relative z-10 flex-1 flex flex-col justify-center px-10 md:px-16">
-    <div id="empty-state" class="w-full flex flex-col items-center justify-center text-center py-16 hidden">
-      <div class="w-16 h-16 rounded-2xl bg-sky-500/10 border border-sky-400/20 flex items-center justify-center mb-6 shadow-[0_0_25px_rgba(56,189,248,0.15)]">
-        <svg class="w-8 h-8 text-sky-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z" />
-        </svg>
-      </div>
-      <h2 class="text-2xl md:text-3xl font-bold text-white tracking-tight">No Games Available</h2>
-      <p class="text-sm md:text-base text-sky-200/60 mt-3 max-w-md leading-relaxed">
-        Check your internet connection, verify service status, or add games to the repository.
-      </p>
-      <button id="refresh-btn" class="mt-6 px-5 py-2.5 rounded-xl bg-sky-500/10 hover:bg-sky-500/20 active:scale-95 border border-sky-400/30 text-sky-300 hover:text-sky-200 text-sm font-semibold tracking-wide transition-all inline-flex items-center gap-2">
-        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
-        </svg>
-        Retry
-      </button>
-    </div>
-
-    <div id="games-section" class="w-full max-w-7xl hidden">
-      <div id="tiles-row" class="flex items-center gap-6 py-6 px-3 overflow-x-auto custom-scrollbar scroll-smooth"></div>
-
-      <div id="info-panel" class="info-panel mt-7 min-h-[96px] max-w-2xl">
-        <h1 id="game-title" class="text-3xl md:text-4xl font-bold tracking-tight text-white"></h1>
-        <p id="game-desc" class="text-sm md:text-base text-sky-200/75 mt-2 leading-relaxed"></p>
+  <div class="game-runtime-overlay" id="game-overlay">
+    <div class="hud-hover-zone">
+      <div class="hud-controls-dock">
+        <button class="hud-btn" id="btn-toggle-fullscreen">
+          <svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+        </button>
+        <button class="hud-btn" id="btn-exit-game">
+          <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
       </div>
     </div>
-  </main>
-
-  <div class="h-12"></div>
+    <iframe class="game-frame" id="game-frame" allow="autoplay; fullscreen; gamepad"></iframe>
+  </div>
 
   <script>
-    let games = [];
+    const canvas = document.getElementById('ambient-waves');
+    const ctx = canvas.getContext('2d');
+    let width = 0;
+    let height = 0;
+    let waveTime = 0;
 
-    const emptyState = document.getElementById('empty-state');
-    const gamesSection = document.getElementById('games-section');
-    const tilesRow = document.getElementById('tiles-row');
-    const infoPanel = document.getElementById('info-panel');
-    const titleEl = document.getElementById('game-title');
-    const descEl = document.getElementById('game-desc');
-    const refreshBtn = document.getElementById('refresh-btn');
-
-    let switchTimeout = null;
-    let hideTimeout = null;
-    let isPanelVisible = false;
-
-    async function loadCatalog() {
-      try {
-        const response = await fetch('games.json', { cache: 'no-cache' });
-        if (response.ok) {
-          const data = await response.json();
-          games = Array.isArray(data) ? data : [];
-        } else {
-          games = [];
-        }
-      } catch (err) {
-        games = [];
-      }
-      renderGames();
+    function resizeCanvas() {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = width;
+      canvas.height = height;
     }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
 
-    function renderGames() {
-      if (!games || games.length === 0) {
-        emptyState.classList.remove('hidden');
-        gamesSection.classList.add('hidden');
-        return;
-      }
+    const waves = [
+      { speed: 0.0007, amplitude: 90, frequency: 0.0016, color: 'rgba(37, 99, 235, 0.28)', yOffset: 0.65 },
+      { speed: 0.0011, amplitude: 130, frequency: 0.0011, color: 'rgba(2, 132, 199, 0.24)', yOffset: 0.72 },
+      { speed: 0.0005, amplitude: 160, frequency: 0.0008, color: 'rgba(56, 189, 248, 0.16)', yOffset: 0.78 }
+    ];
 
-      emptyState.classList.add('hidden');
-      gamesSection.classList.remove('hidden');
-      tilesRow.innerHTML = '';
+    function renderWaves() {
+      waveTime += 1;
+      ctx.clearRect(0, 0, width, height);
 
-      games.forEach((game) => {
-        const container = document.createElement('div');
-        container.className = 'game-tile-container';
-        container.setAttribute('data-title', game.title || 'Untitled');
-        container.setAttribute('data-desc', game.desc || game.description || '');
+      waves.forEach(wave => {
+        ctx.beginPath();
+        ctx.moveTo(0, height);
 
-        const focusBorder = document.createElement('div');
-        focusBorder.className = 'switch-focus-border';
-
-        const tile = document.createElement('div');
-        tile.className = 'game-tile';
-
-        if (game.cover) {
-          tile.style.backgroundImage = `url(${game.cover})`;
-          tile.style.backgroundSize = 'cover';
-          tile.style.backgroundPosition = 'center';
-        } else {
-          tile.style.background = game.bg || 'linear-gradient(145deg, #0ea5e9 0%, #1e40af 55%, #09152e 100%)';
+        for (let x = 0; x <= width; x += 12) {
+          const y = height * wave.yOffset +
+            Math.sin(x * wave.frequency + waveTime * wave.speed) * wave.amplitude +
+            Math.sin(x * wave.frequency * 0.5 + waveTime * wave.speed * 0.8) * (wave.amplitude * 0.4);
+          ctx.lineTo(x, y);
         }
 
-        container.appendChild(focusBorder);
-        container.appendChild(tile);
-        tilesRow.appendChild(container);
-
-        container.addEventListener('mouseenter', () => {
-          clearTimeout(hideTimeout);
-          clearTimeout(switchTimeout);
-
-          const newTitle = container.getAttribute('data-title');
-          const newDesc = container.getAttribute('data-desc');
-
-          if (!isPanelVisible) {
-            titleEl.textContent = newTitle;
-            descEl.textContent = newDesc;
-            infoPanel.classList.remove('switching');
-            infoPanel.classList.add('visible');
-            isPanelVisible = true;
-          } else if (titleEl.textContent !== newTitle) {
-            infoPanel.classList.add('switching');
-            switchTimeout = setTimeout(() => {
-              titleEl.textContent = newTitle;
-              descEl.textContent = newDesc;
-              infoPanel.classList.remove('switching');
-            }, 120);
-          }
-        });
-
-        container.addEventListener('mouseleave', () => {
-          clearTimeout(switchTimeout);
-          hideTimeout = setTimeout(() => {
-            infoPanel.classList.remove('visible', 'switching');
-            isPanelVisible = false;
-          }, 90);
-        });
+        ctx.lineTo(width, height);
+        ctx.closePath();
+        ctx.fillStyle = wave.color;
+        ctx.fill();
       });
-    }
 
-    tilesRow.addEventListener('wheel', (e) => {
+      requestAnimationFrame(renderWaves);
+    }
+    requestAnimationFrame(renderWaves);
+
+    const logo = document.getElementById('main-logo');
+    const logoFallback = document.getElementById('brand-fallback-text');
+    logo.onerror = () => {
+      logo.style.display = 'none';
+      logoFallback.style.display = 'block';
+    };
+
+    const shelfArea = document.getElementById('shelf-scroll-area');
+    const scrollbarThumb = document.getElementById('scrollbar-thumb');
+    const detailsTitle = document.getElementById('details-title');
+    const detailsDescription = document.getElementById('details-description');
+    const shelfContainer = document.getElementById('shelf-container');
+
+    const gameOverlay = document.getElementById('game-overlay');
+    const gameFrame = document.getElementById('game-frame');
+    const btnExit = document.getElementById('btn-exit-game');
+    const btnFullscreen = document.getElementById('btn-toggle-fullscreen');
+
+    shelfArea.addEventListener('wheel', (e) => {
       e.preventDefault();
-      tilesRow.scrollLeft += e.deltaY * 1.5;
+      shelfArea.scrollLeft += e.deltaY;
     }, { passive: false });
 
-    refreshBtn.addEventListener('click', () => {
-      loadCatalog();
+    function syncScrollbar() {
+      const scrollWidth = shelfArea.scrollWidth - shelfArea.clientWidth;
+      if (scrollWidth <= 0) {
+        scrollbarThumb.style.width = '100%';
+        scrollbarThumb.style.left = '0%';
+        return;
+      }
+      const thumbRatio = shelfArea.clientWidth / shelfArea.scrollWidth;
+      const thumbWidthPercent = Math.max(thumbRatio * 100, 8);
+      const scrollPercent = shelfArea.scrollLeft / scrollWidth;
+      const maxLeftPercent = 100 - thumbWidthPercent;
+
+      scrollbarThumb.style.width = `${thumbWidthPercent}%`;
+      scrollbarThumb.style.left = `${scrollPercent * maxLeftPercent}%`;
+    }
+    shelfArea.addEventListener('scroll', syncScrollbar);
+
+    function setFocusedGame(game) {
+      if (!game) {
+        detailsTitle.classList.remove('active');
+        detailsDescription.classList.remove('active');
+        return;
+      }
+      detailsTitle.textContent = game.title;
+      detailsDescription.textContent = game.description;
+      detailsTitle.classList.add('active');
+      detailsDescription.classList.add('active');
+    }
+
+    function clearFocusedGame() {
+      detailsTitle.classList.remove('active');
+      detailsDescription.classList.remove('active');
+    }
+
+    async function launchGame(game) {
+      if (!game || !game.path) return;
+
+      try {
+        if (!document.fullscreenElement) {
+          await document.documentElement.requestFullscreen();
+        }
+      } catch (err) {}
+
+      gameFrame.src = game.path;
+      gameOverlay.classList.add('running');
+    }
+
+    function closeGame() {
+      gameOverlay.classList.remove('running');
+      setTimeout(() => {
+        gameFrame.src = 'about:blank';
+      }, 800);
+      if (document.fullscreenElement) {
+        document.exitFullscreen().catch(() => {});
+      }
+    }
+
+    btnExit.addEventListener('click', closeGame);
+
+    btnFullscreen.addEventListener('click', () => {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen().catch(() => {});
+      }
     });
 
-    loadCatalog();
+    async function loadGames() {
+      shelfArea.innerHTML = '';
+      clearFocusedGame();
+
+      try {
+        const response = await fetch(`games.json?t=${Date.now()}`);
+        if (!response.ok) throw new Error();
+        const games = await response.json();
+
+        if (!Array.isArray(games) || games.length === 0) {
+          renderEmptyState();
+          return;
+        }
+
+        renderGames(games);
+      } catch (err) {
+        renderEmptyState();
+      }
+    }
+
+    function renderGames(games) {
+      shelfContainer.style.display = 'flex';
+
+      games.forEach(game => {
+        const tile = document.createElement('div');
+        tile.className = 'game-tile';
+        tile.tabIndex = 0;
+
+        const tileInner = document.createElement('div');
+        tileInner.className = 'game-tile-inner';
+
+        const cover = document.createElement('img');
+        cover.className = 'game-cover-art';
+        cover.alt = game.title || 'Game Cover';
+        cover.src = game.cover ? (game.cover.startsWith('http') ? game.cover : `./${game.cover}`) : '';
+        cover.onerror = () => {
+          cover.style.display = 'none';
+        };
+
+        const border = document.createElement('div');
+        border.className = 'game-tile-border';
+
+        tileInner.appendChild(cover);
+        tile.appendChild(tileInner);
+        tile.appendChild(border);
+
+        tile.addEventListener('mouseenter', () => setFocusedGame(game));
+        tile.addEventListener('mouseleave', clearFocusedGame);
+        tile.addEventListener('focus', () => setFocusedGame(game));
+        tile.addEventListener('blur', clearFocusedGame);
+        tile.addEventListener('click', () => launchGame(game));
+
+        shelfArea.appendChild(tile);
+      });
+
+      syncScrollbar();
+    }
+
+    function renderEmptyState() {
+      shelfArea.innerHTML = '';
+      const emptyBox = document.createElement('div');
+      emptyBox.className = 'empty-shelf';
+
+      const title = document.createElement('div');
+      title.className = 'empty-shelf-title';
+      title.textContent = 'No Available Games';
+
+      const subtitle = document.createElement('div');
+      subtitle.className = 'empty-shelf-subtitle';
+      subtitle.textContent = 'Check your connection or verify service status. Games will appear automatically once deployed.';
+
+      const btn = document.createElement('button');
+      btn.className = 'retry-button';
+      btn.textContent = 'Retry';
+      btn.onclick = loadGames;
+
+      emptyBox.appendChild(title);
+      emptyBox.appendChild(subtitle);
+      emptyBox.appendChild(btn);
+
+      shelfArea.appendChild(emptyBox);
+      syncScrollbar();
+    }
+
+    loadGames();
   </script>
 </body>
 </html>
