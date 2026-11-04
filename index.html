@@ -14,7 +14,7 @@
     }
 
     body {
-      background-color: #030712;
+      background-color: #020617;
       color: #f8fafc;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       overflow: hidden;
@@ -40,7 +40,7 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      padding: 44px 56px;
+      padding: 36px 56px 44px;
     }
 
     .top-bar {
@@ -76,8 +76,8 @@
     }
 
     .theme-picker-btn {
-      width: 46px;
-      height: 46px;
+      width: 48px;
+      height: 48px;
       border-radius: 50%;
       border: 1px solid rgba(255, 255, 255, 0.18);
       background: rgba(15, 23, 42, 0.65);
@@ -106,18 +106,18 @@
 
     .theme-dropdown {
       position: absolute;
-      top: 56px;
+      top: 58px;
       right: 0;
-      min-width: 220px;
-      background: rgba(10, 16, 30, 0.92);
+      width: 260px;
+      background: rgba(10, 16, 30, 0.94);
       border: 1px solid rgba(56, 189, 248, 0.25);
-      border-radius: 16px;
-      padding: 8px;
-      backdrop-filter: blur(20px);
-      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.6);
+      border-radius: 18px;
+      padding: 12px;
+      backdrop-filter: blur(24px);
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.65);
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 6px;
       opacity: 0;
       transform: translateY(-8px);
       pointer-events: none;
@@ -131,10 +131,19 @@
       pointer-events: all;
     }
 
+    .dropdown-section-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(56, 189, 248, 0.85);
+      padding: 4px 8px 2px;
+    }
+
     .theme-option {
-      padding: 10px 14px;
+      padding: 9px 12px;
       border-radius: 10px;
-      font-size: 14px;
+      font-size: 13.5px;
       font-weight: 500;
       color: rgba(255, 255, 255, 0.8);
       cursor: pointer;
@@ -155,13 +164,74 @@
       font-weight: 600;
     }
 
+    .dropdown-divider {
+      height: 1px;
+      background: rgba(255, 255, 255, 0.08);
+      margin: 6px 4px;
+    }
+
+    .speed-slider-box {
+      padding: 6px 8px 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .speed-slider-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .speed-value-badge {
+      font-size: 11px;
+      font-weight: 700;
+      color: #38bdf8;
+      background: rgba(56, 189, 248, 0.15);
+      padding: 2px 7px;
+      border-radius: 6px;
+    }
+
+    .speed-range-input {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 5px;
+      border-radius: 5px;
+      background: rgba(255, 255, 255, 0.15);
+      outline: none;
+      cursor: pointer;
+    }
+
+    .speed-range-input::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #38bdf8;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.9);
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+
+    .speed-range-input::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+    }
+
+    .main-content {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      margin-top: 18px;
+      margin-bottom: auto;
+    }
+
     .shelf-container {
       display: flex;
       flex-direction: column;
-      gap: 18px;
+      gap: 16px;
       width: 100%;
-      margin-top: auto;
-      margin-bottom: 24px;
     }
 
     .shelf-scroll-area {
@@ -169,7 +239,7 @@
       gap: 28px;
       overflow-x: auto;
       overflow-y: hidden;
-      padding: 18px 4px;
+      padding: 16px 4px 20px;
       scroll-behavior: smooth;
       scrollbar-width: none;
     }
@@ -272,12 +342,13 @@
     }
 
     .details-pane {
-      min-height: 100px;
+      min-height: 96px;
       display: flex;
       flex-direction: column;
-      justify-content: flex-end;
+      justify-content: flex-start;
       pointer-events: none;
       max-width: 100%;
+      margin-top: 24px;
     }
 
     .details-title {
@@ -457,25 +528,38 @@
           <svg viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61e-4.38.48-.63 1.12-.63 1.77 0 1.44 1.16 2.61 2.6 2.61.47 0 .91-.13 1.28-.35.43-.26.96-.42 1.53-.42h1.25c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9 8 9.67 8 10.5 7.33 12 6.5 12zm3-4C8.67 8 8 7.33 8 6.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 9 17.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
         </button>
         <div class="theme-dropdown" id="theme-dropdown">
-          <div class="theme-option" data-theme="waves">Deep Ocean Waves</div>
+          <div class="dropdown-section-label">Background Style</div>
+          <div class="theme-option" data-theme="waves">Waves</div>
           <div class="theme-option" data-theme="nebula">Starfield & Nebula</div>
           <div class="theme-option" data-theme="aurora">Aurora Flow</div>
           <div class="theme-option" data-theme="grid">Cyber 3D Grid</div>
+          <div class="dropdown-divider"></div>
+          <div class="speed-slider-box">
+            <div class="speed-slider-header">
+              <span>Motion Speed</span>
+              <span class="speed-value-badge" id="speed-badge">1.0x</span>
+            </div>
+            <input type="range" min="0.2" max="2.5" step="0.1" value="1.0" class="speed-range-input" id="speed-slider">
+          </div>
         </div>
       </div>
     </div>
 
-    <div class="shelf-container" id="shelf-container">
-      <div class="shelf-scroll-area" id="shelf-scroll-area"></div>
-      <div class="custom-scrollbar-track" id="scrollbar-track">
-        <div class="custom-scrollbar-thumb" id="scrollbar-thumb"></div>
+    <div class="main-content">
+      <div class="shelf-container" id="shelf-container">
+        <div class="shelf-scroll-area" id="shelf-scroll-area"></div>
+        <div class="custom-scrollbar-track" id="scrollbar-track">
+          <div class="custom-scrollbar-thumb" id="scrollbar-thumb"></div>
+        </div>
+      </div>
+
+      <div class="details-pane">
+        <div class="details-title" id="details-title"></div>
+        <div class="details-description" id="details-description"></div>
       </div>
     </div>
 
-    <div class="details-pane">
-      <div class="details-title" id="details-title"></div>
-      <div class="details-description" id="details-description"></div>
-    </div>
+    <div></div>
   </div>
 
   <div class="game-runtime-overlay" id="game-overlay">
@@ -497,11 +581,11 @@
     const ctx = canvas.getContext('2d');
     let width = 0;
     let height = 0;
-    let animFrameId;
     let time = 0;
 
     const themes = ['waves', 'nebula', 'aurora', 'grid'];
     let currentTheme = localStorage.getItem('cloudy_theme') || themes[Math.floor(Math.random() * themes.length)];
+    let animSpeedMultiplier = parseFloat(localStorage.getItem('cloudy_anim_speed')) || 1.0;
 
     function resize() {
       width = window.innerWidth;
@@ -512,7 +596,7 @@
     window.addEventListener('resize', resize);
     resize();
 
-    const stars = Array.from({ length: 90 }, () => ({
+    const stars = Array.from({ length: 110 }, () => ({
       x: (Math.random() - 0.5) * 2000,
       y: (Math.random() - 0.5) * 2000,
       z: Math.random() * 1000 + 200
@@ -560,10 +644,9 @@
 
       const cx = width / 2;
       const cy = height / 2;
-      ctx.fillStyle = '#ffffff';
 
       stars.forEach(s => {
-        s.z -= 0.35;
+        s.z -= 0.35 * animSpeedMultiplier;
         if (s.z <= 1) s.z = 1000;
         const k = 400 / s.z;
         const px = cx + s.x * k;
@@ -581,8 +664,8 @@
       ctx.fillRect(0, 0, width, height);
 
       const ribbons = [
-        { speed: 0.0006, color1: 'rgba(56, 189, 248, 0.22)', color2: 'rgba(37, 99, 235, 0.05)', offset: 0 },
-        { speed: 0.0004, color1: 'rgba(2, 132, 199, 0.18)', color2: 'rgba(14, 165, 233, 0.02)', offset: 2.2 }
+        { speed: 0.0009, color1: 'rgba(56, 189, 248, 0.22)', color2: 'rgba(37, 99, 235, 0.05)', offset: 0 },
+        { speed: 0.0006, color1: 'rgba(2, 132, 199, 0.18)', color2: 'rgba(14, 165, 233, 0.02)', offset: 2.2 }
       ];
 
       ribbons.forEach(r => {
@@ -624,7 +707,7 @@
       ctx.fillStyle = grad;
       ctx.fillRect(0, horizon, width, groundH);
 
-      const speed = (time * 0.00035) % 1;
+      const speed = (time * 0.0005) % 1;
       const totalH = 14;
 
       ctx.strokeStyle = 'rgba(56, 189, 248, 0.24)';
@@ -659,18 +742,29 @@
     }
 
     function loop() {
-      time += 1;
+      time += 1 * animSpeedMultiplier;
       if (currentTheme === 'waves') renderWaves();
       else if (currentTheme === 'nebula') renderNebula();
       else if (currentTheme === 'aurora') renderAurora();
       else if (currentTheme === 'grid') renderGrid();
-      animFrameId = requestAnimationFrame(loop);
+      requestAnimationFrame(loop);
     }
     loop();
 
     const themeBtn = document.getElementById('theme-btn');
     const themeDropdown = document.getElementById('theme-dropdown');
     const themeOptions = document.querySelectorAll('.theme-option');
+    const speedSlider = document.getElementById('speed-slider');
+    const speedBadge = document.getElementById('speed-badge');
+
+    speedSlider.value = animSpeedMultiplier;
+    speedBadge.textContent = `${animSpeedMultiplier.toFixed(1)}x`;
+
+    speedSlider.addEventListener('input', (e) => {
+      animSpeedMultiplier = parseFloat(e.target.value);
+      speedBadge.textContent = `${animSpeedMultiplier.toFixed(1)}x`;
+      localStorage.setItem('cloudy_anim_speed', animSpeedMultiplier);
+    });
 
     function updateThemeUI() {
       themeOptions.forEach(opt => {
@@ -684,6 +778,10 @@
       themeDropdown.classList.toggle('open');
     });
 
+    themeDropdown.addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
+
     document.addEventListener('click', () => {
       themeDropdown.classList.remove('open');
     });
@@ -693,7 +791,6 @@
         currentTheme = opt.dataset.theme;
         localStorage.setItem('cloudy_theme', currentTheme);
         updateThemeUI();
-        themeDropdown.classList.remove('open');
       });
     });
 
@@ -744,7 +841,7 @@
         return;
       }
       detailsTitle.textContent = game.title;
-      detailsDescription.textContent = game.description;
+      detailsDescription.textContent = game.description || game.desc || '';
       detailsTitle.classList.add('active');
       detailsDescription.classList.add('active');
     }
@@ -763,7 +860,8 @@
         }
       } catch (err) {}
 
-      gameFrame.src = game.path;
+      const cleanPath = game.path.startsWith('http') || game.path.startsWith('./') ? game.path : `./${game.path}`;
+      gameFrame.src = cleanPath;
       gameOverlay.classList.add('running');
     }
 
@@ -821,7 +919,7 @@
         const cover = document.createElement('img');
         cover.className = 'game-cover-art';
         cover.alt = game.title || 'Game Cover';
-        cover.src = game.cover ? (game.cover.startsWith('http') ? game.cover : `./${game.cover}`) : '';
+        cover.src = game.cover ? (game.cover.startsWith('http') || game.cover.startsWith('./') ? game.cover : `./${game.cover}`) : '';
         cover.onerror = () => {
           cover.style.display = 'none';
         };
